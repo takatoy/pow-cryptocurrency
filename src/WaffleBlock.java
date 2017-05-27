@@ -1,13 +1,11 @@
-import java.util.Instant;
-
 class WaffleBlock {
     private int index;
     private String prevHash;
-    private Instant timestamp;
+    private long timestamp;
     private String data;
     private String hash;
 
-    WaffleBlock(int index, String prevHash, Instant timestamp, String data, String hash) {
+    WaffleBlock(int index, String prevHash, long timestamp, String data, String hash) {
         this.index = index;
         this.prevHash = prevHash;
         this.timestamp = timestamp;
@@ -23,7 +21,7 @@ class WaffleBlock {
         return prevHash;
     }
 
-    public Instant getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
@@ -33,9 +31,5 @@ class WaffleBlock {
 
     public String getHash() {
         return hash;
-    }
-
-    public void addBlock() {
-
     }
 }

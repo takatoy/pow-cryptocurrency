@@ -1,3 +1,3 @@
-class WaffleSocket {
+class WaffleSocket extends Thread {
 
 }
