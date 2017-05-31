@@ -13,12 +13,18 @@ class WaffleHash {
             for (byte b: cipher_byte) {
                 sb.append(String.format("%02x", b&0xff));
             }
-
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
         return "";
+    }
+
+    /**
+     *  Double sha256
+     */
+    public static String sha256d(String text) {
+        return sha256(sha256(text));
     }
 }
