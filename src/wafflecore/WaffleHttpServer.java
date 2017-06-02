@@ -14,19 +14,22 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-class WaffleHttpServer extends Thread {
+public class WaffleHttpServer {
+    HttpServer server;
+
     public WaffleHttpServer() {
         try {
-            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+            server = HttpServer.create(new InetSocketAddress(8080), 0);
         } catch (BindException e) {
-            System.err.println("Cannot bind ")
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public void run() {
+    public void start() {
         try {
             server.createContext("/", new WaffleHttpHandler());
-
             server.setExecutor(null);
             server.start();
             System.out.println("Server running...");
@@ -35,8 +38,8 @@ class WaffleHttpServer extends Thread {
         }
     }
 
-    public void close() {
-        server.close();
+    public void stop() {
+        server.stop(0);
     }
 }
 
@@ -48,7 +51,7 @@ class WaffleHttpHandler implements HttpHandler {
             path = "/index.html";
         }
         File file = new File(".", path);
-        arg0.getResponseHeaders().add("Content-Type", "text/html");
+        arg0.getResponseHeaders().add("Content-Type", "application/json");
         arg0.sendResponseHeaders(200, file.length());
         InputStream is = new FileInputStream(file);
         OutputStream os = arg0.getResponseBody();

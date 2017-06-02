@@ -2,7 +2,7 @@ package wafflecore;
 
 import java.util.scanner;
 
-class WaffleNode {
+public class WaffleNode {
     WaffleSocket waffleSocket;
 
     public WaffleNode(WaffleSocket waffleSocket) {
