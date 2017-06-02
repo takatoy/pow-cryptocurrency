@@ -1,6 +1,7 @@
-/**
- *  Waffle System Related API Class
- */
+package wafflecore;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 class WaffleSystem {
     private static String OS = System.getProperty("os.name").toLowerCase();
@@ -27,5 +28,15 @@ class WaffleSystem {
         } else {
             return "err";
         }
+    }
+
+    public static LocalDateTime getCurrentLocalDateTime() {
+        return LocalDateTime.now();
+    }
+
+    public static String getCurrentLocalDateTimeStr() {
+        LocalDateTime ldt = getCurrentLocalDateTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        return ldt.format(formatter);
     }
 }

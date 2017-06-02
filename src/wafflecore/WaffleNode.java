@@ -1,3 +1,5 @@
+package wafflecore;
+
 import java.util.scanner;
 
 class WaffleNode {

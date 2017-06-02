@@ -1,3 +1,5 @@
+package wafflecore;
+
 class WaffleBlock {
     private int index;
     private String prevHash;
