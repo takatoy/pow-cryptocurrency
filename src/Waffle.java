@@ -1,4 +1,4 @@
-package wafflecore;
+import wafflecore.*;
 
 class Waffle {
     public static void main(String[] args) {
