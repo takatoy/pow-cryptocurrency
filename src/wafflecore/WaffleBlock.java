@@ -15,6 +15,10 @@ class WaffleBlock {
         this.hash = hash;
     }
 
+    public String serialize() {
+
+    }
+
     public int getIndex() {
         return index;
     }

@@ -55,7 +55,7 @@ public class WaffleSystem {
 
                 writer.close();
             } else {
-
+                throw new IOException(filePath + " cannot be written.");
             }
         } catch (IOException e) {
             e.printStackTrace();

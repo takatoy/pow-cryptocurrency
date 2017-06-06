@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 class WaffleHash {
-    public static String sha256(String text) {
+    public static byte[] sha256(String text) {
         byte[] cipher_byte;
 
         try {
@@ -26,7 +26,18 @@ class WaffleHash {
     /**
      *  Double sha256
      */
-    public static String sha256d(String text) {
+    public static byte[] hash256(String text) {
         return sha256(sha256(text));
+    }
+
+    /**
+     *  RIPEMD160(SHA256(text))
+     */
+    public static byte[] hash160(String text) {
+        byte[] cipher_byte;
+
+        try {
+
+        }
     }
 }
