@@ -3,41 +3,53 @@ package wafflecore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-class WaffleHash {
-    public static byte[] sha256(String text) {
-        byte[] cipher_byte;
+public class WaffleHash {
+    // private static WaffleHash waffleHash = new WaffleHash();
+    // private WaffleHash() {
+    // }
 
+    // public static WaffleHash getInstance() {
+    //     return waffleHash;
+    // }
+
+    public static byte[] sha256(byte[] plain, int offset, int length) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(text.getBytes());
-            cipher_byte = md.digest();
-            StringBuilder sb = new StringBuilder(2 * cipher_byte.length);
-            for (byte b: cipher_byte) {
-                sb.append(String.format("%02x", b&0xff));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
+            md.update(plain, offset, length);
+            return md.digest();
+        } catch (Exception e) {
+            // Can't happen
             e.printStackTrace();
         }
 
-        return "";
+        return new byte[0];
+    }
+
+    public static byte[] sha256(byte[] plain) {
+        return sha256(plain, 0, plain.length);
     }
 
     /**
-     *  Double sha256
+     *  @TODO Need to consider how to implement ripemd160
      */
-    public static byte[] hash256(String text) {
-        return sha256(sha256(text));
+    // public static byte[] ripemd160(byte[] plain) throws Exception {
+    //     MessageDigest md = MessageDigest.getInstance("RipeMD160", "BC");
+    //     md.update(plain);
+    //     byte[] digest = md.digest();
+    //     return digest;
+    // }
+
+    /**
+     *  SHA256(SHA256(plain))
+     */
+    public static byte[] hash256(byte[] plain) throws Exception {
+        return sha256(sha256(plain));
     }
 
     /**
-     *  RIPEMD160(SHA256(text))
+     *  @TODO RIPEMD160(SHA256(plain))
      */
-    public static byte[] hash160(String text) {
-        byte[] cipher_byte;
-
-        try {
-
-        }
-    }
+    // public static byte[] hash160(byte[] plain) throws Exception {
+    //     return ripemd160(sha256(plain));
+    // }
 }
