@@ -4,6 +4,7 @@ import wafflecore.Logger;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.util.concurrent.ExecutorService;
@@ -13,21 +14,22 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-public class Listener extends Thread {
+public class Listener implements Runnable {
     private static Logger logger = Logger.getInstance();
     private InetSocketAddress addr = null;
+    private boolean addToPeerList = false;
     private boolean running = true;
 
-    public Listener(String host, int port) {
-        addr = new InetSocketAddress(host, port);
+    public Listener(String host, int port, boolean addToPeerList) {
+        this(new InetSocketAddress(host, port), addToPeerList);
     }
 
-    public Listener(InetAddress addr, int port) {
-        this.addr = new InetSocketAddress(addr, port);
-    }
-
-    public Listener(InetSocketAddress addr) {
+    public Listener(InetSocketAddress addr, boolean addToPeerList) {
         this.addr = addr;
+    }
+
+    public void stopRunning() {
+        running = false;
     }
 
     @Override
@@ -48,7 +50,10 @@ public class Listener extends Thread {
                     @Override
                     public void run() {
                         try (SocketChannel channel = _channel;) {
-                            // do something
+                            if (addToPeerList) {
+                                InetSocketAddress remote = (InetSocketAddress) channel.getRemoteAddress();
+                                Peers.add(remote.getHostName(), remote.getPort());
+                            }
                             response(channel);
                             logger.log("CLOSED " + channel);
                         } catch (IOException e) {
@@ -63,10 +68,6 @@ public class Listener extends Thread {
         } finally {
             worker.shutdown();
         }
-    }
-
-    public void stopRunning() {
-        running = false;
     }
 
     private void response(final SocketChannel _channel) {
