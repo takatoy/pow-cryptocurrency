@@ -16,7 +16,7 @@ public class Logger {
         try {
             file = new File(logFilePath);
 
-            if (SystemApi.isFileWritable(file)) {
+            if (SystemUtil.isFileWritable(file)) {
                 writer = new FileWriter(file, true);
             } else {
                 throw new IOException(logFilePath + " cannot be written.");
@@ -32,7 +32,7 @@ public class Logger {
 
     public static void log(String msg) {
         String logFilePath = Config.getValue("LOG_FILE_PATH");
-        String date = SystemApi.getCurrentLocalDateTimeStr();
+        String date = SystemUtil.getCurrentLocalDateTimeStr();
         try {
             writer.write("[" + date + "] " + msg + "\n");
             writer.flush();

@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class SystemApi {
+public class SystemUtil {
     private static String OS = System.getProperty("os.name").toLowerCase();
 
     public static boolean isWin() {

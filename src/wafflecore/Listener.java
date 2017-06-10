@@ -2,16 +2,17 @@ package wafflecore;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-public class Listener implements Runnable {
+public class Listener extends Thread {
     private static Logger logger = Logger.getInstance();
-    InetSocketAddress addr = "";
+    InetSocketAddress addr = null;
 
     public Listener(String host, int port) {
         addr = new InetSocketAddress(host, port);
@@ -21,6 +22,7 @@ public class Listener implements Runnable {
         this.addr = addr;
     }
 
+    @Override
     public void run() {
         ExecutorService worker = Executors.newCachedThreadPool();
 
