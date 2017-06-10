@@ -1,6 +1,9 @@
-package wafflecore;
+package wafflecore.connection;
+
+import wafflecore.Logger;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.util.concurrent.ExecutorService;
@@ -12,10 +15,15 @@ import java.nio.charset.Charset;
 
 public class Listener extends Thread {
     private static Logger logger = Logger.getInstance();
-    InetSocketAddress addr = null;
+    private InetSocketAddress addr = null;
+    private boolean running = true;
 
     public Listener(String host, int port) {
         addr = new InetSocketAddress(host, port);
+    }
+
+    public Listener(InetAddress addr, int port) {
+        this.addr = new InetSocketAddress(addr, port);
     }
 
     public Listener(InetSocketAddress addr) {
@@ -32,7 +40,7 @@ public class Listener extends Thread {
             logger.log("Server listening on port " + addr.getPort() + "...");
             System.out.println("Server listening on port " + addr.getPort() + "...");
 
-            while (true) {
+            while (running) {
                 final SocketChannel _channel = listener.accept();
                 logger.log("ACCEPTED " + _channel);
 
@@ -57,13 +65,17 @@ public class Listener extends Thread {
         }
     }
 
-    private void response(SocketChannel channel) {
+    public void stopRunning() {
+        running = false;
+    }
+
+    private void response(final SocketChannel _channel) {
         ByteBuffer buf = ByteBuffer.allocate(1000);
         Charset charset = Charset.forName("UTF-8");
-        String remoteAddr = channel.socket().getRemoteSocketAddress().toString();
+        String remoteAddr = _channel.socket().getRemoteSocketAddress().toString();
 
         try {
-            if (channel.read(buf) < 0) {
+            if (_channel.read(buf) < 0) {
                 return;
             }
             String http = "";
@@ -71,7 +83,7 @@ public class Listener extends Thread {
             http += "Content-Type: text/html\n";
             http += "\n";
             http += "<html><head><title>HEY</title></head><body><h1>Hello, World!</h1></body></html>";
-            channel.write(ByteBuffer.wrap(http.getBytes(charset)));
+            _channel.write(ByteBuffer.wrap(http.getBytes(charset)));
         } catch (IOException e) {
             e.printStackTrace();
             return;

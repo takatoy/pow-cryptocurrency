@@ -12,7 +12,7 @@ public class Config {
         String val = "";
 
         if (name.equals("LOG_FILE_PATH")) {
-            val = ROOT_DIR + "/error.log";
+            val = DATA_DIR + "/error.log";
         } else if (name.equals("LISTEN_PORT")) {
             val = "9001";
         }
