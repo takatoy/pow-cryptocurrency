@@ -3,7 +3,7 @@ package wafflecore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class WaffleHash {
+public class Hasher {
     public static byte[] sha256(byte[] plain, int offset, int length) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

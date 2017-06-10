@@ -1,9 +1,9 @@
 package wafflecore;
 
-import static wafflecore.constants.WaffleConstants.*;
+import static wafflecore.constants.Constants.*;
 
 // need to consider the config structure later...
-public class WaffleConfig {
+public class Config {
     // public void readConfigFile() {
 
     // }
@@ -12,8 +12,7 @@ public class WaffleConfig {
         String val = "";
 
         if (name.equals("LOG_FILE_PATH")) {
-            val = ROOT_DIR + "error.log";
-            System.out.println(val);
+            val = ROOT_DIR + "/error.log";
         } else if (name.equals("LISTEN_PORT")) {
             val = "9001";
         }

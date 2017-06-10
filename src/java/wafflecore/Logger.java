@@ -1,24 +1,22 @@
 package wafflecore;
 
-import wafflecore.WaffleConfig;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class WaffleLogger {
-    private static WaffleLogger waffleLogger = new WaffleLogger();
+public class Logger {
+    private static Logger logger = new Logger();
     private static File file;
     private static FileWriter writer;
     public static String logFilePath;
 
-    private WaffleLogger() {
-        logFilePath = WaffleConfig.getValue("LOG_FILE_PATH");
+    private Logger() {
+        logFilePath = Config.getValue("LOG_FILE_PATH");
 
         try {
             file = new File(logFilePath);
 
-            if (WaffleSystem.isFileWritable(file)) {
+            if (SystemApi.isFileWritable(file)) {
                 writer = new FileWriter(file, true);
             } else {
                 throw new IOException(logFilePath + " cannot be written.");
@@ -28,15 +26,16 @@ public class WaffleLogger {
         }
     }
 
-    public static WaffleLogger getInstance() {
-        return waffleLogger;
+    public static Logger getInstance() {
+        return logger;
     }
 
     public static void log(String msg) {
-        String logFilePath = WaffleConfig.getValue("LOG_FILE_PATH");
-        String date = WaffleSystem.getCurrentLocalDateTimeStr();
+        String logFilePath = Config.getValue("LOG_FILE_PATH");
+        String date = SystemApi.getCurrentLocalDateTimeStr();
         try {
             writer.write("[" + date + "] " + msg + "\n");
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

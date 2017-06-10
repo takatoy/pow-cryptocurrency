@@ -1,9 +1,7 @@
 package wafflecore;
 
-import wafflecore.WaffleLogger;
-
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.nio.channels.ServerSocketChannel;
@@ -11,18 +9,19 @@ import java.nio.channels.SocketChannel;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-public class WaffleConnection {
-    // private static WaffleConnection waffleConnection = new WaffleConnection();
-    // private WaffleConnection() {
-    // }
+public class Listener implements Runnable {
+    private static Logger logger = Logger.getInstance();
+    InetSocketAddress addr = "";
 
-    // public WaffleConnection getInstance() {
-    //     return waffleConnection;
-    // }
+    public Listener(String host, int port) {
+        addr = new InetSocketAddress(host, port);
+    }
 
-    private static WaffleLogger logger = WaffleLogger.getInstance();
+    public Listener(InetSocketAddress addr) {
+        this.addr = addr;
+    }
 
-    public void listen(InetSocketAddress addr) {
+    public void run() {
         ExecutorService worker = Executors.newCachedThreadPool();
 
         try (ServerSocketChannel listener = ServerSocketChannel.open();) {
@@ -40,7 +39,7 @@ public class WaffleConnection {
                     public void run() {
                         try (SocketChannel channel = _channel;) {
                             // do something
-                            echo(channel);
+                            response(channel);
                             logger.log("CLOSED " + channel);
                         } catch (IOException e) {
                             logger.log("Error listening server port.");
@@ -56,7 +55,7 @@ public class WaffleConnection {
         }
     }
 
-    private void echo(SocketChannel channel) {
+    private void response(SocketChannel channel) {
         ByteBuffer buf = ByteBuffer.allocate(1000);
         Charset charset = Charset.forName("UTF-8");
         String remoteAddr = channel.socket().getRemoteSocketAddress().toString();
@@ -65,11 +64,12 @@ public class WaffleConnection {
             if (channel.read(buf) < 0) {
                 return;
             }
-            buf.flip();
-            String input = charset.decode(buf).toString();
-            logger.log(remoteAddr + ":" + input);
-            buf.flip();
-            channel.write(buf);
+            String http = "";
+            http += "HTTP/1.1 200 OK\n";
+            http += "Content-Type: text/html\n";
+            http += "\n";
+            http += "<html><head><title>HEY</title></head><body><h1>Hello, World!</h1></body></html>";
+            channel.write(ByteBuffer.wrap(http.getBytes(charset)));
         } catch (IOException e) {
             e.printStackTrace();
             return;

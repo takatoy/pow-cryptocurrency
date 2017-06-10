@@ -2,7 +2,7 @@ package wafflecore;
 
 import java.util.Arrays;
 
-public class WaffleBase58 {
+public class Base58 {
     private static final char[] B58CHARS = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
     private static final char B58ZERO = B58CHARS[0];
     private static final int[] B58INDEX = new int[128];

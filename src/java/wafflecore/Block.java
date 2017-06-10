@@ -1,13 +1,13 @@
 package wafflecore;
 
-class WaffleBlock {
+class Block {
     private int index;
     private String prevHash;
     private long timestamp;
     private String data;
     private String hash;
 
-    WaffleBlock(int index, String prevHash, long timestamp, String data, String hash) {
+    Block(int index, String prevHash, long timestamp, String data, String hash) {
         this.index = index;
         this.prevHash = prevHash;
         this.timestamp = timestamp;
@@ -39,7 +39,7 @@ class WaffleBlock {
         return hash;
     }
 
-    public static WaffleBlock getGenesisBlock() {
-        return new WaffleBlock(0, "0", 1495781049, "GenesisBlock", "3ff1d5ad18e3a5c8788b93218290a238aecf76f7b96b07ef2cfcd9eb6c93042a");
+    public static Block getGenesisBlock() {
+        return new Block(0, "0", 1495781049, "GenesisBlock", "3ff1d5ad18e3a5c8788b93218290a238aecf76f7b96b07ef2cfcd9eb6c93042a");
     }
 }
