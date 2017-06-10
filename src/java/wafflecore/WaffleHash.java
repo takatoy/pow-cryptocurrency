@@ -4,14 +4,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class WaffleHash {
-    // private static WaffleHash waffleHash = new WaffleHash();
-    // private WaffleHash() {
-    // }
-
-    // public static WaffleHash getInstance() {
-    //     return waffleHash;
-    // }
-
     public static byte[] sha256(byte[] plain, int offset, int length) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

@@ -43,12 +43,40 @@ public class WaffleBase58 {
         return new String(encoded, outputStart, encoded.length - outputStart);
     }
 
-    public static byte[] decode(String encoded) {
-        if (encoded.length == 0) {
+    public static byte[] decode(String encoded) throws IllegalArgumentException {
+        if (encoded.length() == 0) {
             return new byte[0];
         }
 
-        // WIP
+        byte[] encoded58 = new byte[encoded.length()];
+        for (int i = 0; i < encoded.length(); i++) {
+            char c = encoded.charAt(i);
+            int digit = c < 128 ? B58INDEX[c] : -1;
+            if (digit < 0) {
+                throw new IllegalArgumentException("Illegal character " + c + " at position " + i);
+            }
+            encoded58[i] = (byte) digit;
+        }
+
+        int zeros = 0;
+        while (zeros < encoded58.length && encoded58[zeros] == 0) {
+            zeros++;
+        }
+
+        byte[] decoded = new byte[encoded.length()];
+        int outputStart = decoded.length;
+        for (int inputStart = zeros; inputStart < encoded58.length; ) {
+            decoded[--outputStart] = divmod(encoded58, inputStart, 58, 256);
+            if (encoded58[inputStart] == 0) {
+                inputStart++;
+            }
+        }
+
+        while (outputStart < decoded.length && decoded[outputStart] == 0) {
+            outputStart++;
+        }
+
+        return Arrays.copyOfRange(decoded, outputStart - zeros, decoded.length);
     }
 
     private static byte divmod(byte[] n, int firstDigit, int base, int div) {

@@ -49,10 +49,7 @@ public class WaffleSystem {
 
             if (isFileWritable(file)) {
                 FileWriter writer = new FileWriter(file, true);
-
-                String date = getCurrentLocalDateTimeStr();
-                writer.write("[" + date + "] " + msg + "\n");
-
+                writer.write(msg + "\n");
                 writer.close();
             } else {
                 throw new IOException(filePath + " cannot be written.");
@@ -60,11 +57,6 @@ public class WaffleSystem {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void writeLog(String msg) {
-        String logFilePath = WaffleConfig.getValue("LOG_FILE_PATH");
-        writeFile(logFilePath, msg);
     }
 
     public static String bytesToStr(byte[] bytes) {
@@ -75,7 +67,7 @@ public class WaffleSystem {
         return new String(sb);
     }
 
-    private static boolean isFileWritable(File file){
+    public static boolean isFileWritable(File file){
         if (file.exists()) {
             if (file.isFile() && file.canWrite()) {
                 return true;
