@@ -59,14 +59,6 @@ public class SystemUtil {
         }
     }
 
-    public static String bytesToStr(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(2 * bytes.length);
-        for (byte b: bytes) {
-            sb.append(String.format("%02x", b&0xff));
-        }
-        return new String(sb);
-    }
-
     public static boolean isFileWritable(File file){
         if (file.exists()) {
             if (file.isFile() && file.canWrite()) {
@@ -81,5 +73,13 @@ public class SystemUtil {
             return true;
         }
         return false;
+    }
+
+    public static String bytesToStr(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(2 * bytes.length);
+        for (byte b: bytes) {
+            sb.append(String.format("%02x", b&0xff));
+        }
+        return new String(sb);
     }
 }
