@@ -19,8 +19,8 @@ import java.nio.charset.Charset;
 
 public class ConnectionManager {
     private static Logger logger = Logger.getInstance();
-    private boolean addToPeerList = false;
     private boolean listening = true;
+    private ArrayList<SocketChannel> peers = new ArrayList<SocketChannel>();
 
     public Future<Void> listen(String host, int port) {
         return listen(new InetSocketAddress(host, port));
@@ -39,22 +39,15 @@ public class ConnectionManager {
                     System.out.println("Server listening on port " + addr.getPort() + "...");
 
                     while (listening) {
-                        final SocketChannel _channel = listener.accept();
-                        logger.log("ACCEPTED " + _channel);
+                        SocketChannel channel = listener.accept();
+                        System.out.println("ACCEPTED " + channel);
 
-                        executor.submit(new Runnable() {
+                        executor.submit(new Callable<Void>() {
                             @Override
-                            public void run() {
-                                try (SocketChannel channel = _channel;) {
-                                    // if (addToPeerList) {
-                                    //     Peers.add(channel);
-                                    // }
-                                    response(channel);
-                                    logger.log("CLOSED " + channel);
-                                } catch (IOException e) {
-                                    logger.log("Error listening server port.");
-                                    e.printStackTrace();
-                                }
+                            public Void call() {
+                                peers.add(channel);
+                                response(channel);
+                                return null;
                             }
                         });
                     }
@@ -67,13 +60,13 @@ public class ConnectionManager {
         });
     }
 
-    private void response(final SocketChannel _channel) {
+    private void response(SocketChannel channel) {
         ByteBuffer buf = ByteBuffer.allocate(1000);
         Charset charset = Charset.forName("UTF-8");
-        String remoteAddr = _channel.socket().getRemoteSocketAddress().toString();
+        String remoteAddr = channel.socket().getRemoteSocketAddress().toString();
 
         try {
-            if (_channel.read(buf) < 0) {
+            if (channel.read(buf) < 0) {
                 return;
             }
             String http = "";
@@ -81,7 +74,7 @@ public class ConnectionManager {
             http += "Content-Type: text/html\n";
             http += "\n";
             http += "<html><head><title>HEY</title></head><body><h1>Hello, World!</h1></body></html>";
-            _channel.write(ByteBuffer.wrap(http.getBytes(charset)));
+            channel.write(ByteBuffer.wrap(http.getBytes(charset)));
         } catch (IOException e) {
             e.printStackTrace();
             return;
