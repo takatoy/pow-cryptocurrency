@@ -1,4 +1,4 @@
-package wafflecore;
+package wafflecore.tool;
 
 import java.io.File;
 import java.io.FileWriter;

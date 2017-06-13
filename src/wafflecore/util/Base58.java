@@ -1,4 +1,4 @@
-package wafflecore;
+package wafflecore.util;
 
 import java.util.Arrays;
 
