@@ -44,7 +44,7 @@ public class TransactionExecInfo {
     public void setGeneratedOutputs(ArrayList<TransactionOutput> generatedOutputs) {
         this.generatedOutputs = generatedOutputs;
     }
-    public void setTransactionFee(ArrayList<TransactionOutput> transactionFee) {
+    public void setTransactionFee(long transactionFee) {
         this.transactionFee = transactionFee;
     }
 }

@@ -11,7 +11,7 @@ public class Transaction {
     private TransactionExecInfo execInfo;
 
     public Transaction(
-        byte[] original;
+        byte[] original,
         byte[] id,
         long timestamp,
         ArrayList<InEntry> inEntries,

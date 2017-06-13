@@ -32,18 +32,18 @@ public class Block {
         Transaction parsedTransactions,
         double totalDifficulty)
     {
-        this.original, = original;
-        this.id, = id;
-        this.previousHash, = previousHash;
-        this.difficulty, = difficulty;
-        this.nonce, = nonce;
-        this.timestamp, = timestamp;
-        this.transactionRootHash, = transactionRootHash;
-        this.transactionIds, = transactionIds;
-        this.transactions, = transactions;
-        this.height, = height;
-        this.parsedTransactions, = parsedTransactions;
-        this.totalDifficulty = totalDifficult;
+        this.original = original;
+        this.id = id;
+        this.previousHash = previousHash;
+        this.difficulty = difficulty;
+        this.nonce = nonce;
+        this.timestamp = timestamp;
+        this.transactionRootHash = transactionRootHash;
+        this.transactionIds = transactionIds;
+        this.transactions = transactions;
+        this.height = height;
+        this.parsedTransactions = parsedTransactions;
+        this.totalDifficulty = totalDifficulty;
     }
 
     // getter

@@ -6,7 +6,7 @@ public class TransactionOutput {
     private byte[] recipient;
     private long amount;
 
-    public TransactionId(
+    public TransactionOutput(
         byte[] transactionId,
         short outIndex,
         byte[] recipient,
