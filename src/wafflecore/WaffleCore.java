@@ -22,8 +22,8 @@ public class WaffleCore {
         // Initiate thread executor
         executor = Executors.newCachedThreadPool();
 
-        ConnectionManager cn = new ConnectionManager();
-        Future<Void> listener = cn.listen("localhost", 9001); // listen
+        ConnectionManager connectionManager = new ConnectionManager("localhost", 9001);
+        connectionManager.listen(); // listen
 
         System.out.println("Program still going.");
 
