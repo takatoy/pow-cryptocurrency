@@ -1,5 +1,7 @@
 package wafflecore.model;
 
+import wafflecore.constants.Constants.*;
+
 import java.util.ArrayList;
 
 public class Block {
@@ -44,6 +46,18 @@ public class Block {
         this.height = height;
         this.parsedTransactions = parsedTransactions;
         this.totalDifficulty = totalDifficulty;
+    }
+
+    public static Block getGenesisBlock() {
+        return new Block(
+            EMPTY_BYTES,
+            EMPTY_BYTES,
+            2e-6,
+            0,
+            0,
+            -,
+            -,
+            );//wip
     }
 
     // getter

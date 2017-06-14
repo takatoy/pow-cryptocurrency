@@ -18,12 +18,12 @@ public class Transaction {
         ArrayList<OutEntry> outEntries,
         TransactionExecInfo execInfo)
     {
-            this.original = original;
-            this.id = id;
-            this.timestamp = timestamp;
-            this.inEntries = inEntries;
-            this.outEntries = outEntries;
-            this.execInfo = execInfo;
+        this.original = original;
+        this.id = id;
+        this.timestamp = timestamp;
+        this.inEntries = inEntries;
+        this.outEntries = outEntries;
+        this.execInfo = execInfo;
     }
 
     // getter

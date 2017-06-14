@@ -9,4 +9,6 @@ public final class Constants {
 
     public static final String ROOT_DIR = System.getProperty("user.dir");
     public static final String DATA_DIR = System.getProperty("user.home") + "/.waffle";
+
+    public static final byte[] EMPTY_BYTES = new Byte[32];
 }
