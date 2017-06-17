@@ -1,6 +1,6 @@
 package wafflecore;
 
-import wafflecore.Logger;
+import wafflecore.tool.Logger;
 import wafflecore.WaffleCore;
 
 import java.io.IOException;
@@ -72,6 +72,7 @@ public class ConnectionManager {
                             handleAccept(key);
                         } else if (key.isReadable()) {
                             handleRead(key);
+                            response((SocketChannel) key.channel());
                         }
                     }
                 }

@@ -1,6 +1,8 @@
 package wafflecore.util;
 
-class TransactionUtil {
+import wafflecore.model.*;
+
+public class TransactionUtil {
     public static Transaction deserializeTransaction(byte[] bytes) {
         return null;
     }

@@ -1,8 +1,9 @@
 package wafflecore.util;
 
 import wafflecore.model.*;
+import java.util.ArrayList;
 
-class BlockUtil {
+public class BlockUtil {
     public static Block deserializeBlock(byte[] bytes) {
         // WIP
         return null;
@@ -16,7 +17,7 @@ class BlockUtil {
         }
     }
 
-    public static double getNextDifficulty(ArrayList<Blocks> previousBlocks) {
-        previousBlocks.add();
+    public static double getNextDifficulty(ArrayList<Block> previousBlocks) {
+        return 0;
     }
 }

@@ -3,6 +3,8 @@ package wafflecore;
 import wafflecore.model.*;
 import wafflecore.util.BlockChainUtil;
 import wafflecore.util.BlockUtil;
+import wafflecore.util.TransactionUtil;
+import wafflecore.util.EccService;
 import wafflecore.tool.Logger;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
@@ -116,7 +118,7 @@ class Executor {
         }
 
         byte[] rootTxHash = BlockChainUtil.rootHashTransactionIds(block.getTransactionIds());
-        double difficulty = BlockParameter.getNextDifficulty(ancestors(block, blocks));
+        double difficulty = BlockUtil.getNextDifficulty(BlockChainUtil.ancestors(block, blocks));
 
         // Throw exception if block is invalid.
         if (block.getTimestamp() > System.currentTimeMillis() ||
@@ -124,7 +126,7 @@ class Executor {
             block.getTransactions().size() == 0 ||
             block.getTransactions().size() != block.getTransactionIds().size() ||
             !Arrays.equals(rootTxHash, block.getTransactionRootHash()) ||
-            !Arrays.equals(latest.getId(), block.getPreviousHash())
+            !Arrays.equals(latest.getId(), block.getPreviousHash()) ||
             block.getDifficulty() >= difficulty * (1 + 1e-15) ||
             block.getDifficulty() <= difficulty * (1 - 1e-15) //|| and hash difficulty?
             )
@@ -137,23 +139,23 @@ class Executor {
         ArrayList<byte[]> txIds = block.getTransactionIds();
         ArrayList<Transaction> parsedTxs = new ArrayList<Transaction>();
         for (int i = 0; i < txs.size(); i++) {
-            Transaction tx = TransactionUtil.deserializeTransaction(txs[i]);
-            if (!Arrays.equals(tx.getId(), txIds[i])) {
+            Transaction tx = TransactionUtil.deserializeTransaction(txs.get(i));
+            if (!Arrays.equals(tx.getId(), txIds.get(i))) {
                 throw new IllegalArgumentException();
             }
             parsedTxs.add(tx);
         }
 
-        long coinbase = BlockUtil.getCoinbase(latest.getHeight() + 1);
+        long coinbase = BlockUtil.getCoinbaseAmount(latest.getHeight() + 1);
         ArrayList<TransactionOutput> spentTxos = new ArrayList<TransactionOutput>();
         for (int i = 0; i < parsedTxs.size(); i++) {
-            runTransaction(parsedTxs[i], block.getTimestamp(), 0, spentTxos);
-            TransactionExecInfo execInfo = parsedTxs[i].getExecInfo();
-            coinbase += getTransactionFee(); // coinbase will be the sum of all transaction fee
+            runTransaction(parsedTxs.get(i), block.getTimestamp(), 0, spentTxos);
+            TransactionExecInfo execInfo = parsedTxs.get(i).getExecInfo();
+            coinbase += execInfo.getTransactionFee(); // coinbase will be the sum of all transaction fee
             spentTxos.addAll(execInfo.getRedeemedOutputs());
         }
 
-        runTransaction(parsedTxs[0], block.getTimestamp(), coinbase, null);
+        runTransaction(parsedTxs.get(0), block.getTimestamp(), coinbase, null);
         block.setHeight(latest.getHeight() + 1);
         block.setParsedTransactions(parsedTxs);
         block.setTotalDifficulty(latest.getTotalDifficulty() + block.getDifficulty());
@@ -167,7 +169,7 @@ class Executor {
 
         if (tx.getTimestamp() > blockTime ||
             !(coinbase == 0 && tx.getInEntries().size() == 0)) {
-            throw new InvalidArgumentException();
+            throw new IllegalArgumentException();
         }
 
         // Validity check for in-entries.
@@ -185,22 +187,24 @@ class Executor {
             // Check if transaction output is unspent.
             boolean isUnspent = true;
             for (TransactionOutput spent : spentTxos) {
-                if (Arrays.equals(spentTxos.getTransactionId(), txo.getTransactionId())) {
+                if (Arrays.equals(spent.getTransactionId(), txo.getTransactionId())) {
                     isUnspent = false;
                 }
             }
+
             txo = utxos.get(txo.getTransactionId());
+            boolean isRedeemable = false;
             if (txo == null) {
                 isUnspent = false;
             } else {
                 // Check recipient address.
                 byte[] addr = BlockChainUtil.toAddress(in.getPublicKey());
-                boolean isRedeemable = Arrays.equals(txo.getRecipient(), addr);
+                isRedeemable = Arrays.equals(txo.getRecipient(), addr);
             }
 
             inSum += txo.getAmount();
             if (!isVerified || !isUnspent || !isRedeemable) {
-                throw new InvalidArgumentException();
+                throw new IllegalArgumentException();
             }
 
             redeemed.add(txo);
@@ -208,11 +212,11 @@ class Executor {
 
         long outSum = 0;
         short outIndex = 0;
-        ArrayList<outEntry> outEntries = tx.getOutEntries();
+        ArrayList<OutEntry> outEntries = tx.getOutEntries();
         ArrayList<TransactionOutput> generated = new ArrayList<TransactionOutput>();
-        for (outEntry out : outEntries) {
-            if (out.getRecipientHash() == null || out.getRecipientHash().size() == 0 || out.getAmount() <= 0) {
-                throw new InvalidArgumentException();
+        for (OutEntry out : outEntries) {
+            if (out.getRecipientHash() == null || out.getRecipientHash().length == 0 || out.getAmount() <= 0) {
+                throw new IllegalArgumentException();
             }
 
             outSum += out.getAmount();
@@ -222,7 +226,7 @@ class Executor {
         }
 
         if (outSum > inSum) {
-            throw new InvalidArgumentException();
+            throw new IllegalArgumentException();
         }
 
         tx.setExecInfo(new TransactionExecInfo(coinbase != 0, redeemed, generated, inSum - outSum));
@@ -293,13 +297,13 @@ class Executor {
         for (byte[] floatingBlockId : pendingBlocks) {
             byte[] blockData;
 
-            blockData = inventoryManager.get(floatingBlockId);
+            blockData = inventoryManager.blocks.get(floatingBlockId);
 
             if (blockData == null) {
                 continue;
             }
 
-            processBlock(data, waitingBlockId);
+            processBlock(blockData, waitingBlockId);
         }
     }
 
@@ -309,7 +313,7 @@ class Executor {
             if (block.getParsedTransactions() == null || block.getParsedTransactions().size() == 0) {
                 return;
             }
-            block.remove(id);
+            blocks.remove(id);
         }
 
         ArrayList<byte[]> blocks = floatingBlocks.get(id);
@@ -325,7 +329,7 @@ class Executor {
     public ConcurrentHashMap<byte[], Block> getBlocks() {
         return blocks;
     }
-    public ConcurrentHashMap<TransactionOutput, TransactionOutput> getUtxos() {
+    public ConcurrentHashMap<byte[], TransactionOutput> getUtxos() {
         return utxos;
     }
     public Block getLatestBlock() {

@@ -19,7 +19,7 @@ public class BlockChainUtil {
         return new byte[32];
     }
 
-    public static byte[] getAddress(byte[] pubKey) {
-        return Hasher.hash256(pubKey);
+    public static byte[] toAddress(byte[] publicKey) {
+        return Hasher.hash256(publicKey);
     }
 }
