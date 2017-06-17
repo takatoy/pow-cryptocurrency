@@ -26,10 +26,11 @@ public class WaffleCore {
         connectionManager.listen(); // listen
 
         System.out.println("Program still going.");
+        try {
+            Thread.sleep(5000);
+        } catch (Exception e) {}
 
-        // try {
-        //     Thread.sleep(5000);
-        // } catch (Exception e) {}
+        connectionManager.asyncBroadcast("Hello?");
     }
 
     public static ExecutorService getExecutor() {
