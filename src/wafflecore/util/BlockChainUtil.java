@@ -1,20 +1,25 @@
-package wafflecore.util.BlockChainUtil;
+package wafflecore.util;
 
-import java.util.LinkedList;
+import wafflecore.model.*;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BlockChainUtil {
-    public static Block deserializeBlock(byte[] bytes) {
+    public static ArrayList<Block> ancestors(Block block, ConcurrentHashMap<byte[], Block> blocks) {
         // WIP
-        return;
+        return new ArrayList<Block>();
     }
 
-    public static LinkedList<Block> ancestors(Block block, Hashmap<byte[], Block> blocks) {
+    public static Block lowestCommonAncestor(Block b1, Block b2, ConcurrentHashMap<byte[], Block> blocks) {
         // WIP
-        return;
+        return null;
     }
 
-    public static Block lowestCommonAncestor(Block b1, Block b2, Hashmap<byte[], Block> blocks) {
-        // WIP
-        return;
+    public static byte[] rootHashTransactionIds(ArrayList<byte[]> txIds) {
+        return new byte[32];
+    }
+
+    public static byte[] getAddress(byte[] pubKey) {
+        return Hasher.hash256(pubKey);
     }
 }

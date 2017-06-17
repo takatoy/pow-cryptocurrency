@@ -6,6 +6,13 @@ public class TransactionOutput {
     private byte[] recipient;
     private long amount;
 
+    public TransactionOutput() {
+        this.transactionId = new byte[32];
+        this.outIndex = 0;
+        this.recipient = new byte[32];
+        this.amount = 0;
+    }
+
     public TransactionOutput(
         byte[] transactionId,
         short outIndex,

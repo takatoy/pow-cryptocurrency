@@ -3,26 +3,26 @@ package wafflecore.model;
 import java.util.ArrayList;
 
 public class TransactionExecInfo {
-    private boolean coinBase;
+    private boolean coinbase;
     private ArrayList<TransactionOutput> redeemedOutputs;
     private ArrayList<TransactionOutput> generatedOutputs;
     private long transactionFee;
 
     public TransactionExecInfo(
-        boolean coinBase,
+        boolean coinbase,
         ArrayList<TransactionOutput> redeemedOutputs,
         ArrayList<TransactionOutput> generatedOutputs,
         long transactionFee)
     {
-        this.coinBase = coinBase;
+        this.coinbase = coinbase;
         this.redeemedOutputs = redeemedOutputs;
         this.generatedOutputs = generatedOutputs;
         this.transactionFee = transactionFee;
     }
 
     // getter
-    public boolean getCoinBase() {
-        return coinBase;
+    public boolean getCoinbase() {
+        return coinbase;
     }
     public ArrayList<TransactionOutput> getRedeemedOutputs() {
         return redeemedOutputs;
@@ -35,8 +35,8 @@ public class TransactionExecInfo {
     }
 
     // setter
-    public void setCoinBase(boolean coinBase) {
-        this.coinBase = coinBase;
+    public void setCoinbase(boolean coinbase) {
+        this.coinbase = coinbase;
     }
     public void setRedeemedOutputs(ArrayList<TransactionOutput> redeemedOutputs) {
         this.redeemedOutputs = redeemedOutputs;

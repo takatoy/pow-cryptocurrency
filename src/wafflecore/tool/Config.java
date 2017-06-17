@@ -1,4 +1,4 @@
-package wafflecore;
+package wafflecore.tool;
 
 import static wafflecore.constants.Constants.*;
 

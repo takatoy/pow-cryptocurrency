@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Block {
     private byte[] original; // Original Block bytes
     private byte[] id;
-    private String previousHash;
+    private byte[] previousHash;
     private double difficulty;
     private long nonce;
     private long timestamp;
@@ -15,15 +15,13 @@ public class Block {
     private ArrayList<byte[]> transactionIds;
     private ArrayList<byte[]> transactions;
     private int height;
-    private Transaction parsedTransactions;
+    private ArrayList<Transaction> parsedTransactions;
     private double totalDifficulty;
-    private String data;
-    private String hash;
 
     public Block(
         byte[] original,
         byte[] id,
-        String previousHash,
+        byte[] previousHash,
         double difficulty,
         long nonce,
         long timestamp,
@@ -31,7 +29,7 @@ public class Block {
         ArrayList<byte[]> transactionIds,
         ArrayList<byte[]> transactions,
         int height,
-        Transaction parsedTransactions,
+        ArrayList<Transaction> parsedTransactions,
         double totalDifficulty)
     {
         this.original = original;
@@ -49,15 +47,16 @@ public class Block {
     }
 
     public static Block getGenesisBlock() {
-        return new Block(
-            EMPTY_BYTES,
-            EMPTY_BYTES,
-            2e-6,
-            0,
-            0,
-            -,
-            -,
-            );//wip
+        // return new Block(
+        //     EMPTY_BYTES,
+        //     EMPTY_BYTES,
+        //     2e-6,
+        //     0,
+        //     0,
+        //     -,
+        //     -,
+        //     );//wip
+        return null;
     }
 
     // getter
@@ -67,7 +66,7 @@ public class Block {
     public byte[] getId() {
         return id;
     }
-    public String getPreviousHash() {
+    public byte[] getPreviousHash() {
         return previousHash;
     }
     public double getDifficulty() {
@@ -91,17 +90,11 @@ public class Block {
     public int getHeight() {
         return height;
     }
-    public Transaction getParsedTransactions() {
+    public ArrayList<Transaction> getParsedTransactions() {
         return parsedTransactions;
     }
     public double getTotalDifficulty() {
         return totalDifficulty;
-    }
-    public String getData() {
-        return data;
-    }
-    public String getHash() {
-        return hash;
     }
 
     // setter
@@ -111,7 +104,7 @@ public class Block {
     public void setId(byte[] id) {
         this.id = id;
     }
-    public void setPreviousHash(String previousHash) {
+    public void setPreviousHash(byte[] previousHash) {
         this.previousHash = previousHash;
     }
     public void setDifficulty(double difficulty) {
@@ -135,16 +128,10 @@ public class Block {
     public void setHeight(int height) {
         this.height = height;
     }
-    public void setParsedTransactions(Transaction parsedTransactions) {
+    public void setParsedTransactions(ArrayList<Transaction> parsedTransactions) {
         this.parsedTransactions = parsedTransactions;
     }
     public void setTotalDifficulty(double totalDifficulty) {
         this.totalDifficulty = totalDifficulty;
-    }
-    public void setData(String data) {
-        this.data = data;
-    }
-    public void setHash(String hash) {
-        this.hash = hash;
     }
 }
