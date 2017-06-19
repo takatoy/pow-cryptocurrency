@@ -1,6 +1,6 @@
 package wafflecore;
 
-import wafflecore.constants.Constants.*;
+import static wafflecore.constants.Constants.*;
 import wafflecore.model.*;
 import java.util.concurrent.ConcurrentHashMap;
 

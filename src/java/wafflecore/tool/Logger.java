@@ -31,13 +31,14 @@ public class Logger {
     }
 
     public static void log(String msg) {
-        String logFilePath = Config.getValue("LOG_FILE_PATH");
+        // String logFilePath = Config.getValue("LOG_FILE_PATH");
         String date = SystemUtil.getCurrentLocalDateTimeStr();
-        try {
-            writer.write("[" + date + "] " + msg + "\n");
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try {
+        //     writer.write("[" + date + "] " + msg + "\n");
+        //     writer.flush();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
+        System.out.println("[" + date + "] " + msg + "\n");
     }
 }

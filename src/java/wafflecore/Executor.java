@@ -118,7 +118,9 @@ class Executor {
         }
 
         byte[] rootTxHash = BlockChainUtil.rootHashTransactionIds(block.getTransactionIds());
-        double difficulty = BlockUtil.getNextDifficulty(BlockChainUtil.ancestors(block, blocks));
+        ArrayList<Block> prevBlocks = BlockChainUtil.ancestors(block, blocks);
+        prevBlocks.remove(prevBlocks.size() - 1); // Remove the genesis block.
+        double difficulty = BlockUtil.getNextDifficulty(prevBlocks);
 
         // Throw exception if block is invalid.
         if (block.getTimestamp() > System.currentTimeMillis() ||

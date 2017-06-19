@@ -1,6 +1,6 @@
 package wafflecore.model;
 
-import wafflecore.constants.Constants.*;
+import static wafflecore.constants.Constants.*;
 
 import java.util.ArrayList;
 
