@@ -5,6 +5,6 @@ import wafflecore.model.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InventoryManager {
-    public ConcurrentHashMap<byte[], byte[]> blocks = new ConcurrentHashMap<byte[], byte[]>();
-    public ConcurrentHashMap<byte[], Transaction> memoryPool = new ConcurrentHashMap<byte[], Transaction>();
+    public static ConcurrentHashMap<byte[], byte[]> blocks = new ConcurrentHashMap<byte[], byte[]>();
+    public static ConcurrentHashMap<byte[], Transaction> memoryPool = new ConcurrentHashMap<byte[], Transaction>();
 }
