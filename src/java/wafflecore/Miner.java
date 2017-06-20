@@ -11,10 +11,10 @@ import java.util.Arrays;
 public class Miner {
     private Logger logger = Logger.getInstance();
     private static boolean isMining = true;
-    Future<boolean> miner = null;
-    InventoryManager inventoryManager = null;
-    Executor executor = null;
-    byte[] recipientAddr;
+    private static Future<boolean> miner = null;
+    private InventoryManager inventoryManager = null;
+    private Executor executor = null;
+    private byte[] recipientAddr;
 
     public static boolean mine(Block seed) {
         SecureRandom random = new SecureRandom();
@@ -104,15 +104,31 @@ public class Miner {
         executor.runTransaction(coinbaseTx, blockTime, coinbase, null);
         txs.add(0, coinbaseTx);
 
+        ArrayList<byte[]> txIds = new ArrayList<byte[]>();
+        ArrayList<byte[]> txOriginals = new ArrayList<byte[]>();
+        for (Transaction tx : txs) {
+            txIds.add(tx.getId());
+            txOriginals.add(tx.getOriginal());
+        }
 
+        Block block = new Block();
+        block.setPreviousHash(executor.getLatestBlock.getId());
+        block.setDifficulty(BlockUtil.getNextDifficulty(
+            BlockChainUtil.ancestors(executor.getLatestBlock(), executor.getBlocks())));
+        block.setTransactionRootHash(BlockChainUtil.rootHashTransactionIds(txIds));
 
-
-        // If mining suceed apply block.
+        // If mining succeed apply block.
         if (!Mine(block)) {
             return;
         }
 
+        block.setTransactionIds(txIds);
+        block.setTransactions(txOriginals);
+        block.setParsedTransactions(txs);
 
+        logger.log("Block mined.");
+
+        // @TODO broadcastasync(block);
     }
 
     // setter
