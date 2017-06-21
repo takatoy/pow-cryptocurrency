@@ -34,7 +34,7 @@ public class BlockUtil {
         block.setTransactionIds(null);
         block.setTransactions(null);
 
-        return Hasher.hash256(serializeBlock(block));
+        return Hasher.doubleSha256(serializeBlock(block));
     }
 
     public static final int blocksToConsiderDifficulty = 3;

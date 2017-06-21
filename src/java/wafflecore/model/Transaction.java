@@ -10,6 +10,15 @@ public class Transaction {
     private ArrayList<OutEntry> outEntries;
     private TransactionExecInfo execInfo;
 
+    public Transaction() {
+        this.original = null;
+        this.id = null;
+        this.timestamp = 0;
+        this.inEntries = null;
+        this.outEntries = null;
+        this.execInfo = null;
+    }
+
     public Transaction(
         byte[] original,
         byte[] id,

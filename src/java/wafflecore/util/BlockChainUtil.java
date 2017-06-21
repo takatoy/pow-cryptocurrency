@@ -58,10 +58,10 @@ public class BlockChainUtil {
             i++;
         }
 
-        return Hasher.hash256(ids);
+        return Hasher.doubleSha256(ids);
     }
 
     public static byte[] toAddress(byte[] publicKey) {
-        return Hasher.hash256(publicKey);
+        return Hasher.doubleSha256(publicKey);
     }
 }

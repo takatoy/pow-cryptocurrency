@@ -18,45 +18,19 @@ public class Block {
     private ArrayList<Transaction> parsedTransactions;
     private double totalDifficulty;
 
-    public Block(
-        byte[] original,
-        byte[] id,
-        byte[] previousHash,
-        double difficulty,
-        long nonce,
-        long timestamp,
-        byte[] transactionRootHash,
-        ArrayList<byte[]> transactionIds,
-        ArrayList<byte[]> transactions,
-        int height,
-        ArrayList<Transaction> parsedTransactions,
-        double totalDifficulty)
-    {
-        this.original = original;
-        this.id = id;
-        this.previousHash = previousHash;
-        this.difficulty = difficulty;
-        this.nonce = nonce;
-        this.timestamp = timestamp;
-        this.transactionRootHash = transactionRootHash;
-        this.transactionIds = transactionIds;
-        this.transactions = transactions;
-        this.height = height;
-        this.parsedTransactions = parsedTransactions;
-        this.totalDifficulty = totalDifficulty;
-    }
-
-    public static Block getGenesisBlock() {
-        // return new Block(
-        //     EMPTY_BYTES,
-        //     EMPTY_BYTES,
-        //     2e-6,
-        //     0,
-        //     0,
-        //     -,
-        //     -,
-        //     );//wip
-        return null;
+    public Block() {
+        this.original = null;
+        this.id = null;
+        this.previousHash = null;
+        this.difficulty = 0;
+        this.nonce = 0;
+        this.timestamp = 0;
+        this.transactionRootHash = null;
+        this.transactionIds = null;
+        this.transactions = null;
+        this.height = 0;
+        this.parsedTransactions = null;
+        this.totalDifficulty = 0;
     }
 
     // getter

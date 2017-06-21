@@ -6,14 +6,16 @@ import wafflecore.util.BlockUtil;
 import wafflecore.util.TransactionUtil;
 import wafflecore.util.EccService;
 import wafflecore.tool.Logger;
+import wafflecore.Genesis;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-class Executor {
+class BlockChainExecutor {
     private Logger logger = Logger.getInstance();
     private InventoryManager inventoryManager;
+    private Miner miner;
 
     // key: block id / value: Block
     private ConcurrentHashMap<byte[], Block> blocks = new ConcurrentHashMap<byte[], Block>();
@@ -23,8 +25,8 @@ class Executor {
 
     private Block latest;
 
-    public Executor() {
-        latest = Block.getGenesisBlock();
+    public BlockChainExecutor() {
+        latest = Genesis.getGenesisBlock();
         blocks.put(latest.getId(), latest);
     }
 
@@ -259,7 +261,8 @@ class Executor {
         }
 
         latest = block;
-        // BlockExecuted();
+
+
     }
 
     public void revert(Block block) {
@@ -340,5 +343,8 @@ class Executor {
     // setter
     public void setInventoryManager(InventoryManager inventoryManager) {
         this.inventoryManager = inventoryManager;
+    }
+    public void setMiner(Miner miner) {
+        this.miner = miner;
     }
 }

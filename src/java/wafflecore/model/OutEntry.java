@@ -4,6 +4,11 @@ public class OutEntry {
     private byte[] recipientHash;
     private long amount;
 
+    public OutEntry() {
+        this.recipientHash = null;
+        this.amount = 0;
+    }
+
     public OutEntry(
         byte[] recipientHash,
         long amount)

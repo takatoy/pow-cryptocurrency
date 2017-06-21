@@ -24,6 +24,6 @@ public class TransactionUtil {
         tx.setInEntries(inEntries);
 
         byte[] bytes = serializeTransaction(tx);
-        return Hasher.hash256(bytes);
+        return Hasher.doubleSha256(bytes);
     }
 }

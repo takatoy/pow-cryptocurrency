@@ -34,7 +34,7 @@ public class Hasher {
     /**
      *  SHA256(SHA256(plain))
      */
-    public static byte[] hash256(byte[] plain) {
+    public static byte[] doubleSha256(byte[] plain) {
         return sha256(sha256(plain));
     }
 

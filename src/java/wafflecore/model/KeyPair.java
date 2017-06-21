@@ -1,5 +1,6 @@
 package wafflecore.model;
 
+// may delete?
 public class KeyPair {
     public byte[] publicKey;
     public byte[] privateKey;
