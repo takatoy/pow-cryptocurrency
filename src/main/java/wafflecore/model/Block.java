@@ -3,19 +3,35 @@ package wafflecore.model;
 import static wafflecore.constants.Constants.*;
 
 import java.util.ArrayList;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Block {
+    @JsonIgnore
     private byte[] original; // Original Block bytes
+    @JsonProperty("id")
     private byte[] id;
+    @JsonProperty("prev")
     private byte[] previousHash;
+    @JsonProperty("difficulty")
     private double difficulty;
+    @JsonProperty("nonce")
     private long nonce;
+    @JsonProperty("timestamp")
     private long timestamp;
+    @JsonProperty("txroot")
     private byte[] transactionRootHash;
+    @JsonIgnore
     private ArrayList<byte[]> transactionIds;
+    @JsonIgnore
     private ArrayList<byte[]> transactions;
+    @JsonProperty("height")
     private int height;
+    @JsonProperty("txs")
     private ArrayList<Transaction> parsedTransactions;
+    @JsonIgnore
     private double totalDifficulty;
 
     public Block() {
@@ -31,6 +47,20 @@ public class Block {
         this.height = 0;
         this.parsedTransactions = null;
         this.totalDifficulty = 0;
+    }
+
+    public String toJson() {
+        String json = "";
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            System.err.println("Invalid block data detected.");
+            e.printStackTrace();
+        }
+
+        return json;
     }
 
     // getter

@@ -15,6 +15,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class WaffleCore {
     private static ExecutorService service = null; // Thread Executor
 
@@ -39,6 +44,26 @@ public class WaffleCore {
         BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
         Miner miner = new Miner();
 
+        class Test {
+            @JsonProperty("valuea")
+            public int a;
+            @JsonProperty("valb")
+            public int b;
+        }
+
+        Test test = new Test();
+        test.a = 400;
+        test.b = 100;
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String json = mapper.writeValueAsString(test);
+            System.out.println(json);
+        } catch (JsonProcessingException e) {
+            System.err.println("Invalid block data detected.");
+            e.printStackTrace();
+        }
+
         // blockChainExecutor.setMiner(miner);
         // blockChainExecutor.setInventoryManager(inventoryManager);
         // miner.setBlockChainExecutor(blockChainExecutor);
@@ -51,7 +76,7 @@ public class WaffleCore {
         // miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
         // miner.start();
 
-        miner.mine()
+        // miner.mine()
     }
 
     public static ExecutorService getExecutor() {

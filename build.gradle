@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+mainClassName = 'wafflecore.WaffleCore'
+
+def defaultEncoding = 'UTF-8'
+
+tasks.withType(AbstractCompile) each { it.options.encoding = 'UTF-8' }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
+}

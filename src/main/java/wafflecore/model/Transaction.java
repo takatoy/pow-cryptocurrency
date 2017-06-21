@@ -1,13 +1,23 @@
 package wafflecore.model;
 
 import java.util.ArrayList;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Transaction {
+    @JsonIgnore
     private byte[] original;
+    @JsonProperty("id")
     private byte[] id;
+    @JsonProperty("timestamp")
     private long timestamp;
+    @JsonProperty("in")
     private ArrayList<InEntry> inEntries;
+    @JsonProperty("out")
     private ArrayList<OutEntry> outEntries;
+    @JsonIgnore
     private TransactionExecInfo execInfo;
 
     public Transaction() {
@@ -33,6 +43,20 @@ public class Transaction {
         this.inEntries = inEntries;
         this.outEntries = outEntries;
         this.execInfo = execInfo;
+    }
+
+    public String toJson() {
+        String json = "";
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            System.err.println("Invalid transaction data detected.");
+            e.printStackTrace();
+        }
+
+        return json;
     }
 
     // getter

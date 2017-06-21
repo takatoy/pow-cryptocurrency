@@ -1,5 +1,6 @@
 package wafflecore;
 
+import static wafflecore.constants.Constants.*;
 import wafflecore.model.Block;
 
 class Genesis {

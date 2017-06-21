@@ -1,7 +1,14 @@
 package wafflecore.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class OutEntry {
+    @JsonProperty("to")
     private byte[] recipientHash;
+    @JsonProperty("val")
     private long amount;
 
     public OutEntry() {
@@ -15,6 +22,20 @@ public class OutEntry {
     {
         this.recipientHash = recipientHash;
         this.amount = amount;
+    }
+
+    public String toJson() {
+        String json = "";
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            System.err.println("Invalid out-entry data detected.");
+            e.printStackTrace();
+        }
+
+        return json;
     }
 
     // getter
