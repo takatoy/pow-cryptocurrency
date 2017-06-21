@@ -10,13 +10,21 @@ Waffle core system
 - ソース: https://github.com/yutopio/MinChain  
 - スライド: https://www.slideshare.net/YutoTakei/c-73041576
 
-### bitcoinj
+## Building Waffle
 
-bitcoinのjava版。Base58の実装など、基本的な実装を真似られる。  
-- ソース: https://github.com/bitcoinj/bitcoinj
+Gradle is a java building tool. To build, simply run
 
-### bitcoinのしくみ
+```bash
+# for mac/linux/cygwin(?)
+$ gradlew build
+# for windows (haven't tried)
+$ gradlew.bat build
+```
 
-簡易的なbitcoinウォレットの実装。一通り読めばウォレットがどういう風に動くかわかる。  
-- 解説: http://bitcoin.peryaudo.org/implement.html
+To run,
 
+```bash
+$ gradlew run
+```
+
+OR expand zip file in `build/distriputions/waffle.zip` and run `waffle` or `waffle.bat`.
