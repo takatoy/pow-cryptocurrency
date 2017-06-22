@@ -3,14 +3,32 @@ package wafflecore.util;
 import wafflecore.model.*;
 import wafflecore.util.Hasher;
 import java.util.ArrayList;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TransactionUtil {
     public static Transaction deserializeTransaction(byte[] data) {
-        return null;
+        String dataStr = new String(data);
+
+        // Json to transaction.
+        ObjectMapper mapper = new ObjectMapper();
+        Transaction tx = null;
+        try {
+            tx = mapper.readValue(dataStr, Transaction.class);
+            tx.setOriginal(data);
+            tx.setId(computeTransactionId(data));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return tx;
+    }
+
+    public static byte[] computeTransactionId(byte[] data) {
+        return Hasher.doubleSha256(data);
     }
 
     public static byte[] serializeTransaction(Transaction tx) {
-        return new byte[32];
+        return tx.toJson().getBytes();
     }
 
     public static byte[] getTransactionSignHash(byte[] data) {

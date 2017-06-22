@@ -5,6 +5,7 @@ import wafflecore.util.BlockChainUtil;
 import wafflecore.util.BlockUtil;
 import wafflecore.util.TransactionUtil;
 import wafflecore.util.EccService;
+import wafflecore.tool.SystemUtil;
 import wafflecore.tool.Logger;
 import wafflecore.Genesis;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +32,7 @@ class BlockChainExecutor {
     }
 
     synchronized public void processBlock(byte[] data, byte[] prevId) {
+        try{
         Block prevBlock = blocks.get(prevId);
 
         if (prevBlock == null) {
@@ -58,6 +60,7 @@ class BlockChainExecutor {
         }
 
         Block fork = BlockChainUtil.lowestCommonAncestor(latest, blk, blocks);
+        System.out.println(fork);
         // Once revert chain to fork.
         ArrayList<Block> revertingChain = new ArrayList<Block>();
         ArrayList<Block> ancestorsFromLatest = BlockChainUtil.ancestors(latest, blocks);
@@ -107,11 +110,12 @@ class BlockChainExecutor {
         }
 
         checkFloatingBlocks(blk.getId());
+    }catch(Exception e){e.printStackTrace();}
     }
 
     // Validation and adding parameters to block.
     public void runBlock(Block block) {
-        String idStr = new String(block.getId());
+        String idStr = SystemUtil.bytesToStr(block.getId());
         idStr = idStr.substring(0, 7);
         logger.log("Run block:" + idStr);
 
@@ -167,12 +171,12 @@ class BlockChainExecutor {
 
     // Validation and adding parameters to transactions.
     public void runTransaction(Transaction tx, long blockTime, long coinbase, ArrayList<TransactionOutput> spentTxos) {
-        String idStr = new String(tx.getId());
+        String idStr = SystemUtil.bytesToStr(tx.getId());
         idStr = idStr.substring(0, 7);
         logger.log("Run Transaction:" + idStr);
 
         if (tx.getTimestamp() > blockTime ||
-            !(coinbase == 0 && tx.getInEntries().size() == 0)) {
+            !(coinbase == 0 ^ tx.getInEntries().size() == 0)) {
             throw new IllegalArgumentException();
         }
 
@@ -190,9 +194,11 @@ class BlockChainExecutor {
 
             // Check if transaction output is unspent.
             boolean isUnspent = true;
-            for (TransactionOutput spent : spentTxos) {
-                if (Arrays.equals(spent.getTransactionId(), txo.getTransactionId())) {
-                    isUnspent = false;
+            if (spentTxos != null) {
+                for (TransactionOutput spent : spentTxos) {
+                    if (Arrays.equals(spent.getTransactionId(), txo.getTransactionId())) {
+                        isUnspent = false;
+                    }
                 }
             }
 
@@ -262,7 +268,7 @@ class BlockChainExecutor {
 
         latest = block;
 
-
+        miner.notifyBlockApplied();
     }
 
     public void revert(Block block) {

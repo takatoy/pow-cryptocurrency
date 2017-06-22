@@ -2,11 +2,14 @@ package wafflecore;
 
 import static wafflecore.constants.Constants.*;
 import wafflecore.tool.Logger;
+import wafflecore.tool.SystemUtil;
 import wafflecore.WaffleCore;
 import wafflecore.BlockChainExecutor;
 import wafflecore.model.*;
 import wafflecore.util.BlockUtil;
 import wafflecore.util.BlockChainUtil;
+import wafflecore.util.TransactionUtil;
+
 import java.security.SecureRandom;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -18,11 +21,19 @@ import java.util.concurrent.Callable;
 
 public class Miner {
     private Logger logger = Logger.getInstance();
-    private static boolean isMining = true;
+    public static boolean isMining = false;
     private static Future<Void> miner = null;
     private InventoryManager inventoryManager = null;
     private BlockChainExecutor blockChainExecutor = null;
     private byte[] recipientAddr;
+
+    public static boolean mineGenesis(Block genesis) {
+        isMining = true;
+        boolean ret = mine(genesis);
+        isMining = false;
+
+        return ret;
+    }
 
     public static boolean mine(Block seed) {
         SecureRandom random = new SecureRandom();
@@ -33,6 +44,7 @@ public class Miner {
         while (isMining) {
             seed.setNonce(nonce++);
             seed.setTimestamp(System.currentTimeMillis());
+            System.out.println(nonce);
 
             byte[] data = BlockUtil.serializeBlock(seed);
             byte[] blockId = BlockUtil.computeBlockId(data);
@@ -67,7 +79,7 @@ public class Miner {
         } catch (Exception e) {}
     }
 
-    public void notifyBlockMined() {
+    public void notifyBlockApplied() {
         if (!isMining) {
             return;
         }
@@ -101,7 +113,7 @@ public class Miner {
                 TransactionExecInfo execinfo = tx.getExecInfo();
                 coinbase += execinfo.getTransactionFee();
                 txos.addAll(execinfo.getRedeemedOutputs());
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 txs.remove(i);
             }
         }
@@ -113,7 +125,13 @@ public class Miner {
         OutEntry coinbaseOut = new OutEntry(recipientAddr, coinbase);
         coinbaseTx.setOutEntries(new ArrayList<OutEntry>(Arrays.asList(coinbaseOut)));
 
-        blockChainExecutor.runTransaction(coinbaseTx, blockTime, coinbase, null);
+        coinbaseTx = TransactionUtil.deserializeTransaction(TransactionUtil.serializeTransaction(coinbaseTx));
+
+        try {
+            blockChainExecutor.runTransaction(coinbaseTx, blockTime, coinbase, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         txs.add(0, coinbaseTx);
 
         ArrayList<byte[]> txIds = new ArrayList<byte[]>();
@@ -138,9 +156,30 @@ public class Miner {
         block.setTransactions(txOriginals);
         block.setParsedTransactions(txs);
 
-        logger.log("Block mined.");
+        String idStr = SystemUtil.bytesToStr(block.getId());
+        idStr = idStr.substring(0, 7);
+        logger.log("Block mined:" + idStr);
+        System.out.println(block.toJson());
 
         // @TODO broadcastasync(block);
+
+        byte[] deserialized = BlockUtil.serializeBlock(block);
+        blockChainExecutor.processBlock(deserialized, block.getPreviousHash());
+    }
+
+    public static Transaction createCoinbase(int height, byte[] recipient) {
+        Transaction tx = new Transaction();
+        OutEntry coinbaseOut = new OutEntry(recipient, BlockUtil.getCoinbaseAmount(0));
+
+        tx.setTimestamp(System.currentTimeMillis());
+        tx.setInEntries(new ArrayList<InEntry>());
+        tx.setOutEntries(new ArrayList<OutEntry>(Arrays.asList(coinbaseOut)));
+
+        byte[] serialized = TransactionUtil.serializeTransaction(tx);
+        tx.setOriginal(serialized);
+        tx.setId(TransactionUtil.computeTransactionId(serialized));
+
+        return tx;
     }
 
     // setter

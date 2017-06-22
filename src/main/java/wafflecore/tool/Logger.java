@@ -39,6 +39,6 @@ public class Logger {
         // } catch (IOException e) {
         //     e.printStackTrace();
         // }
-        System.out.println("[" + date + "] " + msg + "\n");
+        System.out.println("[" + date + "] " + msg);
     }
 }

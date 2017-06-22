@@ -40,43 +40,25 @@ public class WaffleCore {
 
         // connectionManager.asyncBroadcast("Hello?");
 
+        Genesis genesis = new Genesis();
+        genesis.prepareGenesis(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
+        Block genesisBlock = Genesis.getGenesisBlock();
+
         InventoryManager inventoryManager = new InventoryManager();
         BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
         Miner miner = new Miner();
 
-        class Test {
-            @JsonProperty("valuea")
-            public int a;
-            @JsonProperty("valb")
-            public int b;
-        }
+        blockChainExecutor.setMiner(miner);
+        blockChainExecutor.setInventoryManager(inventoryManager);
+        miner.setBlockChainExecutor(blockChainExecutor);
+        miner.setInventoryManager(inventoryManager);
 
-        Test test = new Test();
-        test.a = 400;
-        test.b = 100;
+        inventoryManager.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
+        blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String json = mapper.writeValueAsString(test);
-            System.out.println(json);
-        } catch (JsonProcessingException e) {
-            System.err.println("Invalid block data detected.");
-            e.printStackTrace();
-        }
+        miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
+        miner.start();
 
-        // blockChainExecutor.setMiner(miner);
-        // blockChainExecutor.setInventoryManager(inventoryManager);
-        // miner.setBlockChainExecutor(blockChainExecutor);
-        // miner.setInventoryManager(inventoryManager);
-
-        // Block genesis = Genesis.getGenesisBlock();
-        // inventoryManager.blocks.put(genesis.getId(), genesis.getOriginal());
-        // blockChainExecutor.processBlock(genesis.getOriginal(), genesis.getPreviousHash());
-
-        // miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
-        // miner.start();
-
-        // miner.mine()
     }
 
     public static ExecutorService getExecutor() {

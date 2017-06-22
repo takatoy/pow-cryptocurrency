@@ -1,23 +1,45 @@
 package wafflecore.util;
 
 import wafflecore.model.*;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.nio.ByteBuffer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockUtil {
     public static Block deserializeBlock(byte[] data) {
-        // WIP
-        return null;
+        String dataStr = new String(data);
+
+        // Json to block.
+        ObjectMapper mapper = new ObjectMapper();
+        Block block = null;
+        try {
+            block = mapper.readValue(dataStr, Block.class);
+            block.setOriginal(data);
+            block.setId(computeBlockId(data));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return block;
     }
 
     public static byte[] serializeBlock(Block block) {
-        // WIP
-        return null;
+        return block.toJson().getBytes();
     }
 
     public static double difficultyOf(byte[] hash) {
-        // WIP
-        return 0;
+        ByteBuffer bytes = ByteBuffer.allocate(256);
+        bytes.put((byte)0x3F);
+        bytes.put((byte)0xF0);
+        bytes.put(hash);
+
+        double d = bytes.getDouble();
+
+        // return Math.pow(2, -35) / (d - 1)
+        return 5.0;
     }
 
     public static long getCoinbaseAmount(int height) {
@@ -29,12 +51,7 @@ public class BlockUtil {
     }
 
     public static byte[] computeBlockId(byte[] data) {
-        Block block = deserializeBlock(data);
-
-        block.setTransactionIds(null);
-        block.setTransactions(null);
-
-        return Hasher.doubleSha256(serializeBlock(block));
+        return Hasher.doubleSha256(data);
     }
 
     public static final int blocksToConsiderDifficulty = 3;
