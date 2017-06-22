@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!gradle-wrapper.jar
 *.war
 *.ear
 *.zip
@@ -23,4 +24,8 @@ hs_err_pid*
 
 .DS_Store
 
+# Gradle
 build
+.gradle
+!gradle-wrapper.jar
+
