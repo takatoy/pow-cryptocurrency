@@ -19,10 +19,10 @@ class BlockChainExecutor {
     private Miner miner;
 
     // key: block id / value: Block
-    private ConcurrentHashMap<byte[], Block> blocks = new ConcurrentHashMap<byte[], Block>();
+    private ConcurrentHashMap<ByteArrayWrapper, Block> blocks = new ConcurrentHashMap<ByteArrayWrapper, Block>();
     // key: ancestor block id / value: floating block ids
-    private ConcurrentHashMap<byte[], ArrayList<byte[]>> floatingBlocks = new ConcurrentHashMap<byte[], ArrayList<byte[]>>();
-    private ConcurrentHashMap<byte[], TransactionOutput> utxos = new ConcurrentHashMap<byte[], TransactionOutput>();
+    private ConcurrentHashMap<ByteArrayWrapper, ArrayList<byte[]>> floatingBlocks = new ConcurrentHashMap<ByteArrayWrapper, ArrayList<byte[]>>();
+    private ConcurrentHashMap<ByteArrayWrapper, TransactionOutput> utxos = new ConcurrentHashMap<ByteArrayWrapper, TransactionOutput>();
 
     private Block latest;
 
@@ -31,7 +31,7 @@ class BlockChainExecutor {
         blocks.put(latest.getId(), latest);
     }
 
-    synchronized public void processBlock(byte[] data, byte[] prevId) {
+    synchronized public void processBlock(byte[] data, ByteArrayWrapper prevId) {
         try{
         Block prevBlock = blocks.get(prevId);
 
@@ -60,7 +60,7 @@ class BlockChainExecutor {
         }
 
         Block fork = BlockChainUtil.lowestCommonAncestor(latest, blk, blocks);
-        System.out.println(fork);
+
         // Once revert chain to fork.
         ArrayList<Block> revertingChain = new ArrayList<Block>();
         ArrayList<Block> ancestorsFromLatest = BlockChainUtil.ancestors(latest, blocks);
@@ -80,7 +80,7 @@ class BlockChainExecutor {
             }
             applyingChain.add(block);
         }
-        Collections.reverse(applyingChain); // Opposite order
+        Collections.reverse(applyingChain);
 
         // Apply.
         int failId = -1;
@@ -144,7 +144,7 @@ class BlockChainExecutor {
 
         // Check transactions. Deserialize bytes.
         ArrayList<byte[]> txs = block.getTransactions();
-        ArrayList<byte[]> txIds = block.getTransactionIds();
+        ArrayList<ByteArrayWrapper> txIds = block.getTransactionIds();
         ArrayList<Transaction> parsedTxs = new ArrayList<Transaction>();
         for (int i = 0; i < txs.size(); i++) {
             Transaction tx = TransactionUtil.deserializeTransaction(txs.get(i));
@@ -243,8 +243,7 @@ class BlockChainExecutor {
     }
 
     public void apply(Block block) {
-        String idStr = new String(block.getId());
-        idStr = idStr.substring(0, 7);
+        String idStr = block.getId().toString().substring(0, 7);
         logger.log("Applying block " + block.getHeight() + ":" + idStr);
 
         ArrayList<Transaction> txs = block.getParsedTransactions();
@@ -256,7 +255,7 @@ class BlockChainExecutor {
         }
 
         synchronized (inventoryManager.memoryPool) {
-            for (byte[] txId : txIds) {
+            for (ByteArrayWrapper txId : txIds) {
                 inventoryManager.memoryPool.remove(txId);
             }
         }
@@ -272,8 +271,7 @@ class BlockChainExecutor {
     }
 
     public void revert(Block block) {
-        String idStr = new String(block.getId());
-        idStr = idStr.substring(0, 7);
+        String idStr = block.getId().toString().substring(0, 7);
         logger.log("Revert block " + block.getHeight() + ":" + idStr);
 
         ArrayList<Transaction> txs = block.getParsedTransactions();
@@ -300,12 +298,12 @@ class BlockChainExecutor {
     }
 
     public void checkFloatingBlocks(byte[] waitingBlockId) {
-        ArrayList<byte[]> pendingBlocks = floatingBlocks.get(waitingBlockId);
+        ArrayList<ByteArrayWrapper> pendingBlocks = floatingBlocks.get(waitingBlockId);
         if (pendingBlocks == null) {
             return;
         }
 
-        for (byte[] floatingBlockId : pendingBlocks) {
+        for (ByteArrayWrapper floatingBlockId : pendingBlocks) {
             byte[] blockData;
 
             blockData = inventoryManager.blocks.get(floatingBlockId);
@@ -318,7 +316,7 @@ class BlockChainExecutor {
         }
     }
 
-    public void purgeBlock(byte[] id) {
+    public void purgeBlock(ByteArrayWrapper id) {
         Block block = blocks.get(id);
         if (block != null) {
             if (block.getParsedTransactions() == null || block.getParsedTransactions().size() == 0) {
@@ -337,10 +335,10 @@ class BlockChainExecutor {
     }
 
     // getter
-    public ConcurrentHashMap<byte[], Block> getBlocks() {
+    public ConcurrentHashMap<ByteArrayWrapper, Block> getBlocks() {
         return blocks;
     }
-    public ConcurrentHashMap<byte[], TransactionOutput> getUtxos() {
+    public ConcurrentHashMap<ByteArrayWrapper, TransactionOutput> getUtxos() {
         return utxos;
     }
     public Block getLatestBlock() {

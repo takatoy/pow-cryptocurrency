@@ -4,6 +4,7 @@ import static wafflecore.constants.Constants.*;
 import wafflecore.model.*;
 import wafflecore.Miner;
 import wafflecore.util.BlockChainUtil;
+import wafflecore.tool.Logger;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -11,10 +12,11 @@ import java.util.ArrayList;
 class Genesis {
     public static Block genesisBlock;
     public static final double INITIAL_DIFFICULTY = 2e-6;
+    public static Logger logger = Logger.getInstance();
 
     public void prepareGenesis(byte[] addr) {
         Transaction tx = Miner.createCoinbase(0, addr);
-        ArrayList<byte[]> txIds = new ArrayList<byte[]>(Arrays.asList(tx.getId()));
+        ArrayList<ByteArrayWrapper> txIds = new ArrayList<ByteArrayWrapper>(Arrays.asList(tx.getId()));
         byte[] roottx = BlockChainUtil.rootHashTransactionIds(txIds);
 
         genesisBlock = new Block();
@@ -29,6 +31,7 @@ class Genesis {
 
         Miner.mineGenesis(genesisBlock);
 
+        logger.log("Genesis mined.");
         System.out.println(genesisBlock.toJson());
     }
 

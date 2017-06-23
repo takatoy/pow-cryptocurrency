@@ -11,7 +11,7 @@ public class Transaction {
     @JsonIgnore
     private byte[] original;
     @JsonProperty("id")
-    private byte[] id;
+    private ByteArrayWrapper id;
     @JsonProperty("timestamp")
     private long timestamp;
     @JsonProperty("in")
@@ -32,7 +32,7 @@ public class Transaction {
 
     public Transaction(
         byte[] original,
-        byte[] id,
+        ByteArrayWrapper id,
         long timestamp,
         ArrayList<InEntry> inEntries,
         ArrayList<OutEntry> outEntries,
@@ -65,7 +65,7 @@ public class Transaction {
     public byte[] getOriginal() {
         return original;
     }
-    public byte[] getId() {
+    public ByteArrayWrapper getId() {
         return id;
     }
     public long getTimestamp() {
@@ -85,7 +85,7 @@ public class Transaction {
     public void setOriginal(byte[] original) {
         this.original = original;
     }
-    public void setId(byte[] id) {
+    public void setId(ByteArrayWrapper id) {
         this.id = id;
     }
     public void setTimestamp(long timestamp) {

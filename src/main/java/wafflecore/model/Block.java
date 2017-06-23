@@ -13,9 +13,9 @@ public class Block {
     @JsonIgnore
     private byte[] original; // Original Block bytes
     @JsonProperty("id")
-    private byte[] id;
+    private ByteArrayWrapper id;
     @JsonProperty("prev")
-    private byte[] previousHash;
+    private ByteArrayWrapper previousHash;
     @JsonProperty("difficulty")
     private double difficulty;
     @JsonProperty("nonce")
@@ -25,7 +25,7 @@ public class Block {
     @JsonProperty("txroot")
     private byte[] transactionRootHash;
     @JsonIgnore
-    private ArrayList<byte[]> transactionIds;
+    private ArrayList<ByteArrayWrapper> transactionIds;
     @JsonIgnore
     private ArrayList<byte[]> transactions;
     @JsonProperty("height")
@@ -69,10 +69,10 @@ public class Block {
     public byte[] getOriginal() {
         return original;
     }
-    public byte[] getId() {
+    public ByteArrayWrapper getId() {
         return id;
     }
-    public byte[] getPreviousHash() {
+    public ByteArrayWrapper getPreviousHash() {
         return previousHash;
     }
     public double getDifficulty() {
@@ -87,7 +87,7 @@ public class Block {
     public byte[] getTransactionRootHash() {
         return transactionRootHash;
     }
-    public ArrayList<byte[]> getTransactionIds() {
+    public ArrayList<ByteArrayWrapper> getTransactionIds() {
         return transactionIds;
     }
     public ArrayList<byte[]> getTransactions() {
@@ -107,10 +107,10 @@ public class Block {
     public void setOriginal(byte[] original) {
         this.original = original;
     }
-    public void setId(byte[] id) {
+    public void setId(ByteArrayWrapper id) {
         this.id = id;
     }
-    public void setPreviousHash(byte[] previousHash) {
+    public void setPreviousHash(ByteArrayWrapper previousHash) {
         this.previousHash = previousHash;
     }
     public void setDifficulty(double difficulty) {
@@ -125,7 +125,7 @@ public class Block {
     public void setTransactionRootHash(byte[] transactionRootHash) {
         this.transactionRootHash = transactionRootHash;
     }
-    public void setTransactionIds(ArrayList<byte[]> transactionIds) {
+    public void setTransactionIds(ArrayList<ByteArrayWrapper> transactionIds) {
         this.transactionIds = transactionIds;
     }
     public void setTransactions(ArrayList<byte[]> transactions) {

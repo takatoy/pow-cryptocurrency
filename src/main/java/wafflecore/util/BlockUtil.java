@@ -1,6 +1,7 @@
 package wafflecore.util;
 
 import wafflecore.model.*;
+import wafflecore.tool.SystemUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,13 @@ public class BlockUtil {
         return block.toJson().getBytes();
     }
 
+    public static String blockIdStr(Block block) {
+        if (block == null) return "";
+
+        byte[] id = block.getId();
+        return SystemUtil.bytesToStr(id);
+    }
+
     public static double difficultyOf(byte[] hash) {
         ByteBuffer bytes = ByteBuffer.allocate(256);
         bytes.put((byte)0x3F);
@@ -50,8 +58,19 @@ public class BlockUtil {
         }
     }
 
-    public static byte[] computeBlockId(byte[] data) {
-        return Hasher.doubleSha256(data);
+    public static ByteArrayWrapper computeBlockId(byte[] data) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            Block block = mapper.readValue(data, Block.class);
+            block.setParsedTransactions(null);
+
+            return ByteArrayWrapper.copyOf(Hasher.doubleSha256(serializeBlock(block)));
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static final int blocksToConsiderDifficulty = 3;

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OutEntry {
     @JsonProperty("to")
-    private byte[] recipientHash;
+    private ByteArrayWrapper recipientHash;
     @JsonProperty("val")
     private long amount;
 
@@ -17,7 +17,7 @@ public class OutEntry {
     }
 
     public OutEntry(
-        byte[] recipientHash,
+        ByteArrayWrapper recipientHash,
         long amount)
     {
         this.recipientHash = recipientHash;
@@ -39,7 +39,7 @@ public class OutEntry {
     }
 
     // getter
-    public byte[] getRecipientHash() {
+    public ByteArrayWrapper getRecipientHash() {
         return recipientHash;
     }
     public long getAmount() {
@@ -47,7 +47,7 @@ public class OutEntry {
     }
 
     // setter
-    public void setRecipientHash(byte[] recipientHash) {
+    public void setRecipientHash(ByteArrayWrapper recipientHash) {
         this.recipientHash = recipientHash;
     }
     public void setAmount(long amount) {

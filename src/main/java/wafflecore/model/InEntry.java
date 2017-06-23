@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class InEntry {
     @JsonProperty("tx")
-    private byte[] transactionId;
+    private ByteArrayWrapper transactionId;
     @JsonProperty("outidx")
     private short outEntryIndex;
     @JsonProperty("pub")
@@ -16,7 +16,7 @@ public class InEntry {
     private byte[] signature;
 
     public InEntry(
-        byte[] transactionId,
+        ByteArrayWrapper transactionId,
         short outEntryIndex,
         byte[] publicKey,
         byte[] signature)
@@ -42,7 +42,7 @@ public class InEntry {
     }
 
     // getter
-    public byte[] getTransactionId() {
+    public ByteArrayWrapper getTransactionId() {
         return transactionId;
     }
     public short getOutEntryIndex() {
@@ -56,7 +56,7 @@ public class InEntry {
     }
 
     // setter
-    public void setTransactionId(byte[] transactionId)  {
+    public void setTransactionId(ByteArrayWrapper transactionId)  {
         this.transactionId = transactionId;
     }
     public void setOutEntryIndex(short outEntryIndex) {

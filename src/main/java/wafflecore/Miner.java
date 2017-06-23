@@ -44,7 +44,7 @@ public class Miner {
         while (isMining) {
             seed.setNonce(nonce++);
             seed.setTimestamp(System.currentTimeMillis());
-            System.out.println(nonce);
+            // System.out.println(nonce);
 
             byte[] data = BlockUtil.serializeBlock(seed);
             byte[] blockId = BlockUtil.computeBlockId(data);
@@ -163,8 +163,8 @@ public class Miner {
 
         // @TODO broadcastasync(block);
 
-        byte[] deserialized = BlockUtil.serializeBlock(block);
-        blockChainExecutor.processBlock(deserialized, block.getPreviousHash());
+        byte[] serialized = BlockUtil.serializeBlock(block);
+        blockChainExecutor.processBlock(serialized, block.getPreviousHash());
     }
 
     public static Transaction createCoinbase(int height, byte[] recipient) {

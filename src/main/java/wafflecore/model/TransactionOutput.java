@@ -1,9 +1,9 @@
 package wafflecore.model;
 
 public class TransactionOutput {
-    private byte[] transactionId;
+    private ByteArrayWrapper transactionId;
     private short outIndex;
-    private byte[] recipient;
+    private ByteArrayWrapper recipient;
     private long amount;
 
     public TransactionOutput() {
@@ -14,9 +14,9 @@ public class TransactionOutput {
     }
 
     public TransactionOutput(
-        byte[] transactionId,
+        ByteArrayWrapper transactionId,
         short outIndex,
-        byte[] recipient,
+        ByteArrayWrapper recipient,
         long amount)
     {
         this.transactionId = transactionId;
@@ -26,13 +26,13 @@ public class TransactionOutput {
     }
 
     // getter
-    public byte[] getTransactionId() {
+    public ByteArrayWrapper getTransactionId() {
         return transactionId;
     }
     public short getOutIndex() {
         return outIndex;
     }
-    public byte[] getRecipient() {
+    public ByteArrayWrapper getRecipient() {
         return recipient;
     }
     public long getAmount() {
@@ -40,13 +40,13 @@ public class TransactionOutput {
     }
 
     // setter
-    public void setTransactionId(byte[] transactionId) {
+    public void setTransactionId(ByteArrayWrapper transactionId) {
         this.transactionId = transactionId;
     }
     public void setOutIndex(short outIndex) {
         this.outIndex = outIndex;
     }
-    public void setRecipient(byte[] recipient) {
+    public void setRecipient(ByteArrayWrapper recipient) {
         this.recipient = recipient;
     }
     public void setAmount(long amount) {
