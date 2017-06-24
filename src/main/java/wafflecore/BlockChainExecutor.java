@@ -8,6 +8,8 @@ import wafflecore.util.EccService;
 import wafflecore.tool.SystemUtil;
 import wafflecore.tool.Logger;
 import wafflecore.Genesis;
+import wafflecore.util.ByteArrayWrapper;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +23,7 @@ class BlockChainExecutor {
     // key: block id / value: Block
     private ConcurrentHashMap<ByteArrayWrapper, Block> blocks = new ConcurrentHashMap<ByteArrayWrapper, Block>();
     // key: ancestor block id / value: floating block ids
-    private ConcurrentHashMap<ByteArrayWrapper, ArrayList<byte[]>> floatingBlocks = new ConcurrentHashMap<ByteArrayWrapper, ArrayList<byte[]>>();
+    private ConcurrentHashMap<ByteArrayWrapper, ArrayList<ByteArrayWrapper>> floatingBlocks = new ConcurrentHashMap<ByteArrayWrapper, ArrayList<ByteArrayWrapper>>();
     private ConcurrentHashMap<ByteArrayWrapper, TransactionOutput> utxos = new ConcurrentHashMap<ByteArrayWrapper, TransactionOutput>();
 
     private Block latest;
@@ -32,15 +34,14 @@ class BlockChainExecutor {
     }
 
     synchronized public void processBlock(byte[] data, ByteArrayWrapper prevId) {
-        try{
         Block prevBlock = blocks.get(prevId);
 
         if (prevBlock == null) {
             // When previous block was not found, the block is put to floating block.
-            ArrayList<byte[]> flBlocks = floatingBlocks.get(prevId);
+            ArrayList<ByteArrayWrapper> flBlocks = floatingBlocks.get(prevId);
             if (flBlocks == null) {
-                flBlocks = new ArrayList<byte[]>();
-                floatingBlocks.put(prevId, new ArrayList<byte[]>());
+                flBlocks = new ArrayList<ByteArrayWrapper>();
+                floatingBlocks.put(prevId, new ArrayList<ByteArrayWrapper>());
             }
             flBlocks.add(prevId);
             return;
@@ -48,6 +49,7 @@ class BlockChainExecutor {
 
         // Mark block as connected.
         Block blk = BlockUtil.deserializeBlock(data);
+
         blk.setHeight(prevBlock.getHeight() + 1);
         blk.setTotalDifficulty(blk.getDifficulty() + prevBlock.getTotalDifficulty());
         blocks.put(blk.getId(), blk);
@@ -65,7 +67,7 @@ class BlockChainExecutor {
         ArrayList<Block> revertingChain = new ArrayList<Block>();
         ArrayList<Block> ancestorsFromLatest = BlockChainUtil.ancestors(latest, blocks);
         for (Block block : ancestorsFromLatest) {
-            if (Arrays.equals(fork.getId(), block.getId())) {
+            if (fork.getId().equals(block.getId())) {
                 break;
             }
             revertingChain.add(block);
@@ -110,16 +112,14 @@ class BlockChainExecutor {
         }
 
         checkFloatingBlocks(blk.getId());
-    }catch(Exception e){e.printStackTrace();}
     }
 
     // Validation and adding parameters to block.
     public void runBlock(Block block) {
-        String idStr = SystemUtil.bytesToStr(block.getId());
-        idStr = idStr.substring(0, 7);
+        String idStr = block.getId().toString().substring(0, 7);
         logger.log("Run block:" + idStr);
 
-        if (block.getParsedTransactions() != null || block.getParsedTransactions().size() > 0) {
+        if (block.getParsedTransactions() != null) {
             return;
         }
 
@@ -134,10 +134,10 @@ class BlockChainExecutor {
             block.getTransactions().size() == 0 ||
             block.getTransactions().size() != block.getTransactionIds().size() ||
             !Arrays.equals(rootTxHash, block.getTransactionRootHash()) ||
-            !Arrays.equals(latest.getId(), block.getPreviousHash()) ||
+            !latest.getId().equals(block.getPreviousHash()) ||
             block.getDifficulty() >= difficulty * (1 + 1e-15) ||
-            block.getDifficulty() <= difficulty * (1 - 1e-15) //|| and hash difficulty?
-            )
+            block.getDifficulty() <= difficulty * (1 - 1e-15) ||
+            block.getDifficulty() > BlockUtil.difficultyOf(block.getId()))
         {
             throw new IllegalArgumentException();
         }
@@ -148,7 +148,7 @@ class BlockChainExecutor {
         ArrayList<Transaction> parsedTxs = new ArrayList<Transaction>();
         for (int i = 0; i < txs.size(); i++) {
             Transaction tx = TransactionUtil.deserializeTransaction(txs.get(i));
-            if (!Arrays.equals(tx.getId(), txIds.get(i))) {
+            if (!tx.getId().equals(txIds.get(i))) {
                 throw new IllegalArgumentException();
             }
             parsedTxs.add(tx);
@@ -156,10 +156,12 @@ class BlockChainExecutor {
 
         long coinbase = BlockUtil.getCoinbaseAmount(latest.getHeight() + 1);
         ArrayList<TransactionOutput> spentTxos = new ArrayList<TransactionOutput>();
-        for (int i = 0; i < parsedTxs.size(); i++) {
+        for (int i = 1; i < parsedTxs.size(); i++) {
             runTransaction(parsedTxs.get(i), block.getTimestamp(), 0, spentTxos);
             TransactionExecInfo execInfo = parsedTxs.get(i).getExecInfo();
-            coinbase += execInfo.getTransactionFee(); // coinbase will be the sum of all transaction fee
+
+            // Collect all transaction fees and add it to coinbase.
+            coinbase += execInfo.getTransactionFee();
             spentTxos.addAll(execInfo.getRedeemedOutputs());
         }
 
@@ -171,8 +173,7 @@ class BlockChainExecutor {
 
     // Validation and adding parameters to transactions.
     public void runTransaction(Transaction tx, long blockTime, long coinbase, ArrayList<TransactionOutput> spentTxos) {
-        String idStr = SystemUtil.bytesToStr(tx.getId());
-        idStr = idStr.substring(0, 7);
+        String idStr = tx.getId().toString().substring(0, 7);
         logger.log("Run Transaction:" + idStr);
 
         if (tx.getTimestamp() > blockTime ||
@@ -196,7 +197,7 @@ class BlockChainExecutor {
             boolean isUnspent = true;
             if (spentTxos != null) {
                 for (TransactionOutput spent : spentTxos) {
-                    if (Arrays.equals(spent.getTransactionId(), txo.getTransactionId())) {
+                    if (spent.getTransactionId().equals(txo.getTransactionId())) {
                         isUnspent = false;
                     }
                 }
@@ -209,7 +210,7 @@ class BlockChainExecutor {
             } else {
                 // Check recipient address.
                 byte[] addr = BlockChainUtil.toAddress(in.getPublicKey());
-                isRedeemable = Arrays.equals(txo.getRecipient(), addr);
+                isRedeemable = txo.getRecipient().equals(addr);
             }
 
             inSum += txo.getAmount();
@@ -247,9 +248,9 @@ class BlockChainExecutor {
         logger.log("Applying block " + block.getHeight() + ":" + idStr);
 
         ArrayList<Transaction> txs = block.getParsedTransactions();
-        ArrayList<byte[]> txIds = new ArrayList<byte[]>();
+        ArrayList<ByteArrayWrapper> txIds = new ArrayList<ByteArrayWrapper>();
         for (Transaction tx : txs) {
-            if (!tx.getExecInfo().getCoinbase()) {
+            if (tx.getExecInfo() != null && !tx.getExecInfo().getCoinbase()) {
                 txIds.add(tx.getId());
             }
         }
@@ -297,7 +298,7 @@ class BlockChainExecutor {
         // BlockExecuted()
     }
 
-    public void checkFloatingBlocks(byte[] waitingBlockId) {
+    public void checkFloatingBlocks(ByteArrayWrapper waitingBlockId) {
         ArrayList<ByteArrayWrapper> pendingBlocks = floatingBlocks.get(waitingBlockId);
         if (pendingBlocks == null) {
             return;
@@ -325,10 +326,10 @@ class BlockChainExecutor {
             blocks.remove(id);
         }
 
-        ArrayList<byte[]> blocks = floatingBlocks.get(id);
+        ArrayList<ByteArrayWrapper> blockIds = floatingBlocks.get(id);
         if (blocks != null) {
             floatingBlocks.remove(id);
-            blocks.forEach(x -> purgeBlock(x));
+            blockIds.forEach(x -> purgeBlock(x));
         }
 
         inventoryManager.blocks.remove(id);

@@ -4,44 +4,36 @@ import static wafflecore.constants.Constants.*;
 import wafflecore.util.Hasher;
 import wafflecore.tool.SystemUtil;
 import wafflecore.model.*;
+import wafflecore.util.ByteArrayWrapper;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 
 public class BlockChainUtil {
-    public static ArrayList<Block> ancestors(Block block, ConcurrentHashMap<byte[], Block> blocks) {
+    public static ArrayList<Block> ancestors(Block block, ConcurrentHashMap<ByteArrayWrapper, Block> blocks) {
         ArrayList<Block> ret = new ArrayList<Block>();
-        byte[] id = block.getId();
+        ByteArrayWrapper id = block.getId();
 
-        System.out.println("----Blocks");
-        blocks.forEach(1, (key, val) -> System.out.println(SystemUtil.bytesToStr(key)));
-
-        System.out.println("----ancestors");
         while (id != null) {
-            System.out.println(SystemUtil.bytesToStr(id));
             Block blk = blocks.get(id);
-            System.out.println(blk);
             if (blk == null) break;
 
             ret.add(blk);
             id = blk.getPreviousHash();
         }
-        System.out.println("--------");
 
         return ret;
     }
 
-    public static Block lowestCommonAncestor(Block b1, Block b2, ConcurrentHashMap<byte[], Block> blocks) {
-        HashSet<byte[]> appeared = new HashSet<byte[]>();
+    public static Block lowestCommonAncestor(Block b1, Block b2, ConcurrentHashMap<ByteArrayWrapper, Block> blocks) {
+        HashSet<ByteArrayWrapper> appeared = new HashSet<ByteArrayWrapper>();
 
         ArrayList<Block> a1 = ancestors(b1, blocks);
         ArrayList<Block> a2 = ancestors(b2, blocks);
 
         int len = Math.max(a1.size(), a2.size());
         for (int i = 0; i < len; i++) {
-            System.out.println("A1 "+BlockUtil.blockIdStr(a1.get(i))+":"+a1.get(i).toJson());
-            System.out.println("A2 "+BlockUtil.blockIdStr(a2.get(i))+":"+a2.get(i).toJson());
             if (a1.size() > i) {
                 if (appeared.contains(a1.get(i).getId())) {
                     return a1.get(i);
@@ -62,15 +54,14 @@ public class BlockChainUtil {
         return null;
     }
 
-    public static byte[] rootHashTransactionIds(ArrayList<byte[]> txIds) {
-        byte[] ids = new byte[txIds.size() * HASH_LENGTH];
-        int i = 0;
-        for (byte[] txId : txIds) {
-            System.arraycopy(txId, 0, ids, i * HASH_LENGTH, HASH_LENGTH);
-            i++;
+    public static byte[] rootHashTransactionIds(ArrayList<ByteArrayWrapper> txIds) {
+        // Using string to concat bytes.
+        String ids = "";
+        for (ByteArrayWrapper txId : txIds) {
+            ids += txId.toString();
         }
 
-        return Hasher.doubleSha256(ids);
+        return Hasher.doubleSha256(ids.getBytes());
     }
 
     public static byte[] toAddress(byte[] publicKey) {

@@ -5,6 +5,7 @@ import wafflecore.model.*;
 import wafflecore.ConnectionManager;
 import wafflecore.Genesis;
 import wafflecore.util.BlockChainUtil;
+import wafflecore.util.ByteArrayWrapper;
 
 import java.io.File;
 import java.nio.channels.SocketChannel;
@@ -30,34 +31,34 @@ public class WaffleCore {
         // Initiate thread executor
         service = Executors.newCachedThreadPool();
 
-        ConnectionManager connectionManager = new ConnectionManager("localhost", 9001);
-        connectionManager.listen(); // listen
+        // ConnectionManager connectionManager = new ConnectionManager("localhost", 9001);
+        // connectionManager.listen(); // listen
 
-        System.out.println("Program still going.");
-        try {
-            Thread.sleep(5000);
-        } catch (Exception e) {}
+        // System.out.println("Program still going.");
+        // try {
+        //     Thread.sleep(5000);
+        // } catch (Exception e) {}
 
-        connectionManager.asyncBroadcast("Hello?");
+        // connectionManager.asyncBroadcast("Hello?");
 
-        // Genesis genesis = new Genesis();
-        // genesis.prepareGenesis(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
-        // Block genesisBlock = Genesis.getGenesisBlock();
+        Genesis genesis = new Genesis();
+        genesis.prepareGenesis(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
+        Block genesisBlock = Genesis.getGenesisBlock();
 
-        // InventoryManager inventoryManager = new InventoryManager();
-        // BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
-        // Miner miner = new Miner();
+        InventoryManager inventoryManager = new InventoryManager();
+        BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
+        Miner miner = new Miner();
 
-        // blockChainExecutor.setMiner(miner);
-        // blockChainExecutor.setInventoryManager(inventoryManager);
-        // miner.setBlockChainExecutor(blockChainExecutor);
-        // miner.setInventoryManager(inventoryManager);
+        blockChainExecutor.setMiner(miner);
+        blockChainExecutor.setInventoryManager(inventoryManager);
+        miner.setBlockChainExecutor(blockChainExecutor);
+        miner.setInventoryManager(inventoryManager);
 
-        // inventoryManager.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
-        // blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
+        inventoryManager.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
+        blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
-        // miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
-        // miner.start();
+        miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
+        miner.start();
 
     }
 

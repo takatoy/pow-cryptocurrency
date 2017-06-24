@@ -2,6 +2,7 @@ package wafflecore.util;
 
 import wafflecore.model.*;
 import wafflecore.tool.SystemUtil;
+import wafflecore.util.ByteArrayWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ public class BlockUtil {
 
         // Json to block.
         ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Block.class, BlockMixIn.class);
         Block block = null;
         try {
             block = mapper.readValue(dataStr, Block.class);
@@ -28,26 +30,29 @@ public class BlockUtil {
     }
 
     public static byte[] serializeBlock(Block block) {
-        return block.toJson().getBytes();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Block.class, BlockMixIn.class);
+        byte[] serialized = null;
+
+        try {
+            serialized = mapper.writeValueAsBytes(block);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return serialized;
     }
 
-    public static String blockIdStr(Block block) {
-        if (block == null) return "";
-
-        byte[] id = block.getId();
-        return SystemUtil.bytesToStr(id);
-    }
-
-    public static double difficultyOf(byte[] hash) {
+    public static double difficultyOf(ByteArrayWrapper hash) {
         ByteBuffer bytes = ByteBuffer.allocate(256);
         bytes.put((byte)0x3F);
         bytes.put((byte)0xF0);
-        bytes.put(hash);
+        bytes.put(hash.getBytes());
 
         double d = bytes.getDouble();
 
         // return Math.pow(2, -35) / (d - 1)
-        return 5.0;
+        return 1.6;
     }
 
     public static long getCoinbaseAmount(int height) {
@@ -60,6 +65,7 @@ public class BlockUtil {
 
     public static ByteArrayWrapper computeBlockId(byte[] data) {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Block.class, BlockMixIn.class);
 
         try {
             Block block = mapper.readValue(data, Block.class);

@@ -1,6 +1,7 @@
 package wafflecore.model;
 
 import static wafflecore.constants.Constants.*;
+import wafflecore.util.ByteArrayWrapper;
 
 import java.util.ArrayList;
 import com.fasterxml.jackson.core.JsonProcessingException;

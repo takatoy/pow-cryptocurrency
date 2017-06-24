@@ -9,6 +9,7 @@ import wafflecore.model.*;
 import wafflecore.util.BlockUtil;
 import wafflecore.util.BlockChainUtil;
 import wafflecore.util.TransactionUtil;
+import wafflecore.util.ByteArrayWrapper;
 
 import java.security.SecureRandom;
 import java.nio.ByteBuffer;
@@ -47,7 +48,7 @@ public class Miner {
             // System.out.println(nonce);
 
             byte[] data = BlockUtil.serializeBlock(seed);
-            byte[] blockId = BlockUtil.computeBlockId(data);
+            ByteArrayWrapper blockId = BlockUtil.computeBlockId(data);
 
             if (BlockUtil.difficultyOf(blockId) > seed.getDifficulty()) {
                 seed.setId(blockId);
@@ -67,6 +68,7 @@ public class Miner {
             @Override
             public Void call() {
                 mineFromLastBlock();
+                System.out.println("done");
                 return null;
             }
         });
@@ -75,7 +77,9 @@ public class Miner {
     public void stop() {
         isMining = false;
         try {
+            System.out.println("hell");
             miner.get(); // Stop mining.
+            System.out.println("get");
         } catch (Exception e) {}
     }
 
@@ -93,7 +97,7 @@ public class Miner {
         ArrayList<Transaction> txs = new ArrayList<Transaction>();
 
         // Iteration over memory pool.
-        for (Map.Entry<byte[], Transaction> txEntry : inventoryManager.memoryPool.entrySet()) {
+        for (Map.Entry<ByteArrayWrapper, Transaction> txEntry : inventoryManager.memoryPool.entrySet()) {
             Transaction tx = txEntry.getValue();
 
             size += tx.getOriginal().length + 50;
@@ -108,6 +112,7 @@ public class Miner {
         ArrayList<TransactionOutput> txos = new ArrayList<TransactionOutput>();
         for (int i = 0; i < txs.size(); i++) {
             Transaction tx = txs.get(i);
+            System.out.println(tx);
             try {
                 blockChainExecutor.runTransaction(tx, blockTime, 0, txos);
                 TransactionExecInfo execinfo = tx.getExecInfo();
@@ -134,7 +139,7 @@ public class Miner {
         }
         txs.add(0, coinbaseTx);
 
-        ArrayList<byte[]> txIds = new ArrayList<byte[]>();
+        ArrayList<ByteArrayWrapper> txIds = new ArrayList<ByteArrayWrapper>();
         ArrayList<byte[]> txOriginals = new ArrayList<byte[]>();
         for (Transaction tx : txs) {
             txIds.add(tx.getId());
@@ -156,8 +161,7 @@ public class Miner {
         block.setTransactions(txOriginals);
         block.setParsedTransactions(txs);
 
-        String idStr = SystemUtil.bytesToStr(block.getId());
-        idStr = idStr.substring(0, 7);
+        String idStr = block.getId().toString().substring(0, 7);
         logger.log("Block mined:" + idStr);
         System.out.println(block.toJson());
 

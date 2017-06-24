@@ -1,5 +1,7 @@
 package wafflecore.model;
 
+import wafflecore.util.ByteArrayWrapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OutEntry {
     @JsonProperty("to")
-    private ByteArrayWrapper recipientHash;
+    private byte[] recipientHash;
     @JsonProperty("val")
     private long amount;
 
@@ -17,7 +19,7 @@ public class OutEntry {
     }
 
     public OutEntry(
-        ByteArrayWrapper recipientHash,
+        byte[] recipientHash,
         long amount)
     {
         this.recipientHash = recipientHash;
@@ -39,7 +41,7 @@ public class OutEntry {
     }
 
     // getter
-    public ByteArrayWrapper getRecipientHash() {
+    public byte[] getRecipientHash() {
         return recipientHash;
     }
     public long getAmount() {
@@ -47,7 +49,7 @@ public class OutEntry {
     }
 
     // setter
-    public void setRecipientHash(ByteArrayWrapper recipientHash) {
+    public void setRecipientHash(byte[] recipientHash) {
         this.recipientHash = recipientHash;
     }
     public void setAmount(long amount) {

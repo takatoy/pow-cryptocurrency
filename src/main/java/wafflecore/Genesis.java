@@ -5,6 +5,7 @@ import wafflecore.model.*;
 import wafflecore.Miner;
 import wafflecore.util.BlockChainUtil;
 import wafflecore.tool.Logger;
+import wafflecore.util.ByteArrayWrapper;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ class Genesis {
         byte[] roottx = BlockChainUtil.rootHashTransactionIds(txIds);
 
         genesisBlock = new Block();
-        genesisBlock.setPreviousHash(EMPTY_BYTES);
-        genesisBlock.setId(EMPTY_BYTES);
+        genesisBlock.setPreviousHash(ByteArrayWrapper.copyOf(EMPTY_BYTES));
+        genesisBlock.setId(ByteArrayWrapper.copyOf(EMPTY_BYTES));
         genesisBlock.setDifficulty(INITIAL_DIFFICULTY);
         genesisBlock.setTimestamp(System.currentTimeMillis());
         genesisBlock.setTransactionRootHash(roottx);

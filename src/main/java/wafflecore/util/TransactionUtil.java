@@ -2,6 +2,8 @@ package wafflecore.util;
 
 import wafflecore.model.*;
 import wafflecore.util.Hasher;
+import wafflecore.util.ByteArrayWrapper;
+
 import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,6 +13,8 @@ public class TransactionUtil {
 
         // Json to transaction.
         ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Transaction.class, TransactionMixIn.class);
+
         Transaction tx = null;
         try {
             tx = mapper.readValue(dataStr, Transaction.class);
@@ -23,12 +27,23 @@ public class TransactionUtil {
         return tx;
     }
 
-    public static byte[] computeTransactionId(byte[] data) {
-        return Hasher.doubleSha256(data);
+    public static ByteArrayWrapper computeTransactionId(byte[] data) {
+        return ByteArrayWrapper.copyOf(Hasher.doubleSha256(data));
     }
 
     public static byte[] serializeTransaction(Transaction tx) {
-        return tx.toJson().getBytes();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Transaction.class, TransactionMixIn.class);
+
+        byte[] serialized = null;
+
+        try {
+            serialized = mapper.writeValueAsBytes(tx);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return serialized;
     }
 
     public static byte[] getTransactionSignHash(byte[] data) {

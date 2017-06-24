@@ -1,9 +1,9 @@
-import wafflecontrol.WaffleControlPanel;
+// import wafflecontrol.WaffleControlPanel;
 
-class Waffle {
-    public static void main(String[] args) {
-        WaffleControlPanel ctrl = new WaffleControlPanel();
+// class Waffle {
+//     public static void main(String[] args) {
+//         WaffleControlPanel ctrl = new WaffleControlPanel();
 
-        ctrl.run();
-    }
-}
+//         ctrl.run();
+//     }
+// }
