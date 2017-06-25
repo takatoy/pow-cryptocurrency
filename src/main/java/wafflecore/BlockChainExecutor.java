@@ -1,5 +1,6 @@
 package wafflecore;
 
+import wafflecore.WaffleCore;
 import wafflecore.model.*;
 import wafflecore.util.BlockChainUtil;
 import wafflecore.util.BlockUtil;
@@ -11,6 +12,8 @@ import wafflecore.Genesis;
 import wafflecore.util.ByteArrayWrapper;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Callable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +53,7 @@ class BlockChainExecutor {
         // Mark block as connected.
         Block blk = BlockUtil.deserializeBlock(data);
 
+        System.out.println(blk.getId().toString());
         blk.setHeight(prevBlock.getHeight() + 1);
         blk.setTotalDifficulty(blk.getDifficulty() + prevBlock.getTotalDifficulty());
         blocks.put(blk.getId(), blk);
@@ -125,7 +129,7 @@ class BlockChainExecutor {
 
         byte[] rootTxHash = BlockChainUtil.rootHashTransactionIds(block.getTransactionIds());
         ArrayList<Block> prevBlocks = BlockChainUtil.ancestors(block, blocks);
-        prevBlocks.remove(prevBlocks.size() - 1); // Remove the genesis block.
+        prevBlocks.remove(0); // Remove the current block.
         double difficulty = BlockUtil.getNextDifficulty(prevBlocks);
 
         // Throw exception if block is invalid.
@@ -139,6 +143,9 @@ class BlockChainExecutor {
             block.getDifficulty() <= difficulty * (1 - 1e-15) ||
             block.getDifficulty() > BlockUtil.difficultyOf(block.getId()))
         {
+            System.out.println(block.getDifficulty() > BlockUtil.difficultyOf(block.getId()));
+            System.out.println(block.getDifficulty() >= difficulty * (1 + 1e-15));
+            System.out.println(block.getDifficulty() <= difficulty * (1 - 1e-15));
             throw new IllegalArgumentException();
         }
 
@@ -268,7 +275,14 @@ class BlockChainExecutor {
 
         latest = block;
 
-        miner.notifyBlockApplied();
+        ExecutorService executor = WaffleCore.getExecutor();
+        executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() {
+                miner.notifyBlockApplied();
+                return null;
+            }
+        });
     }
 
     public void revert(Block block) {
@@ -277,21 +291,24 @@ class BlockChainExecutor {
 
         ArrayList<Transaction> txs = block.getParsedTransactions();
         ArrayList<Transaction> txls = new ArrayList<Transaction>();
-        for (Transaction tx : txs) {
-            if (!tx.getExecInfo().getCoinbase()) {
-                txls.add(tx);
-            }
-        }
 
-        synchronized (inventoryManager.memoryPool) {
-            for (Transaction tx : txls) {
-                inventoryManager.memoryPool.put(tx.getId(), tx);
+        if (txs != null) {
+            for (Transaction tx : txs) {
+                if (!tx.getExecInfo().getCoinbase()) {
+                    txls.add(tx);
+                }
             }
-        }
 
-        for (Transaction tx : txs) {
-            tx.getExecInfo().getRedeemedOutputs().forEach(x -> utxos.put(x.getTransactionId(), x));
-            tx.getExecInfo().getGeneratedOutputs().forEach(x -> utxos.remove(x.getTransactionId()));
+            synchronized (inventoryManager.memoryPool) {
+                for (Transaction tx : txls) {
+                    inventoryManager.memoryPool.put(tx.getId(), tx);
+                }
+            }
+
+            for (Transaction tx : txs) {
+                tx.getExecInfo().getRedeemedOutputs().forEach(x -> utxos.put(x.getTransactionId(), x));
+                tx.getExecInfo().getGeneratedOutputs().forEach(x -> utxos.remove(x.getTransactionId()));
+            }
         }
 
         latest = blocks.get(block.getPreviousHash());

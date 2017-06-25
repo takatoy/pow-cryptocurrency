@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.nio.ByteBuffer;
+import org.apache.commons.lang3.ArrayUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockUtil {
@@ -44,22 +45,18 @@ public class BlockUtil {
     }
 
     public static double difficultyOf(ByteArrayWrapper hash) {
-        ByteBuffer bytes = ByteBuffer.allocate(256);
-        bytes.put((byte)0x3F);
-        bytes.put((byte)0xF0);
-        bytes.put(hash.getBytes());
+        byte[] bytes = ArrayUtils.addAll(new byte[]{ (byte)0x3F, (byte)0xF0 }, hash.getBytes());
+        ByteBuffer buf = ByteBuffer.wrap(bytes);
+        double d = buf.getDouble();
 
-        double d = bytes.getDouble();
-
-        // return Math.pow(2, -35) / (d - 1)
-        return 1.6;
+        return Math.pow(2, -35) / (d - 1);
     }
 
     public static long getCoinbaseAmount(int height) {
         if (height >= 2000) {
             return 0;
         } else {
-            return 1000000 >> (height / 100);
+            return 1000 >> (height / 100);
         }
     }
 
@@ -69,7 +66,8 @@ public class BlockUtil {
 
         try {
             Block block = mapper.readValue(data, Block.class);
-            block.setParsedTransactions(null);
+            block.setTransactions(null);
+            block.setTransactionIds(null);
 
             return ByteArrayWrapper.copyOf(Hasher.doubleSha256(serializeBlock(block)));
         } catch(Exception e){
@@ -80,9 +78,10 @@ public class BlockUtil {
     }
 
     public static final int blocksToConsiderDifficulty = 3;
+    public static final int blockInterval = 30;
     public static double getNextDifficulty(ArrayList<Block> prevBlocks) {
         double lastDiff = prevBlocks.get(0).getDifficulty();
-        if (prevBlocks.size() == 1) {
+        if (prevBlocks.size() <= blocksToConsiderDifficulty) {
             return lastDiff;
         }
 
@@ -91,7 +90,7 @@ public class BlockUtil {
         for (int i = 0; i < blocksToConsiderDifficulty - 1; i++) {
             sumDiff += prevBlocks.get(i).getDifficulty();
         }
-        double newDiff = sumDiff / t * TimeUnit.SECONDS.toMillis(30);
+        double newDiff = sumDiff / t * TimeUnit.SECONDS.toMillis(blockInterval);
 
         // Next difficulty must be in range between +10% and -10%.
         if (newDiff < lastDiff * 0.9) newDiff = lastDiff * 0.9;

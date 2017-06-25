@@ -68,7 +68,6 @@ public class Miner {
             @Override
             public Void call() {
                 mineFromLastBlock();
-                System.out.println("done");
                 return null;
             }
         });
@@ -77,9 +76,7 @@ public class Miner {
     public void stop() {
         isMining = false;
         try {
-            System.out.println("hell");
             miner.get(); // Stop mining.
-            System.out.println("get");
         } catch (Exception e) {}
     }
 

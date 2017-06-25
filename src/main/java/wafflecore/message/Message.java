@@ -1,5 +1,6 @@
 package wafflecore.message;
 
 public abstract class Message {
-    // public static final int MESSAGE_TYPE = -1;
+    public static final int MESSAGE_TYPE = -1;
+
 }

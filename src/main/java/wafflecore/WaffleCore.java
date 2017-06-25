@@ -59,7 +59,6 @@ public class WaffleCore {
 
         miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
         miner.start();
-
     }
 
     public static ExecutorService getExecutor() {
