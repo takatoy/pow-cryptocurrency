@@ -12,15 +12,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockUtil {
+    public static ObjectMapper serializeMapper = new ObjectMapper();
+    static {
+        serializeMapper.addMixIn(Block.class, BlockMixIn.class);
+    }
+
     public static Block deserializeBlock(byte[] data) {
         String dataStr = new String(data);
 
         // Json to block.
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Block.class, BlockMixIn.class);
         Block block = null;
         try {
-            block = mapper.readValue(dataStr, Block.class);
+            block = serializeMapper.readValue(dataStr, Block.class);
             block.setOriginal(data);
             block.setId(computeBlockId(data));
         } catch (Exception e) {
@@ -31,12 +34,10 @@ public class BlockUtil {
     }
 
     public static byte[] serializeBlock(Block block) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Block.class, BlockMixIn.class);
         byte[] serialized = null;
 
         try {
-            serialized = mapper.writeValueAsBytes(block);
+            serialized = serializeMapper.writeValueAsBytes(block);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,16 +57,13 @@ public class BlockUtil {
         if (height >= 2000) {
             return 0;
         } else {
-            return 1000 >> (height / 100);
+            return 1000000 >> (height / 100);
         }
     }
 
     public static ByteArrayWrapper computeBlockId(byte[] data) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Block.class, BlockMixIn.class);
-
         try {
-            Block block = mapper.readValue(data, Block.class);
+            Block block = serializeMapper.readValue(data, Block.class);
             block.setTransactions(null);
             block.setTransactionIds(null);
 

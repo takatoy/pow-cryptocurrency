@@ -20,7 +20,7 @@ import java.util.Collections;
 
 class BlockChainExecutor {
     private Logger logger = Logger.getInstance();
-    private InventoryManager inventoryManager;
+    private Inventory inventory;
     private Miner miner;
 
     // key: block id / value: Block
@@ -53,7 +53,6 @@ class BlockChainExecutor {
         // Mark block as connected.
         Block blk = BlockUtil.deserializeBlock(data);
 
-        System.out.println(blk.getId().toString());
         blk.setHeight(prevBlock.getHeight() + 1);
         blk.setTotalDifficulty(blk.getDifficulty() + prevBlock.getTotalDifficulty());
         blocks.put(blk.getId(), blk);
@@ -143,9 +142,6 @@ class BlockChainExecutor {
             block.getDifficulty() <= difficulty * (1 - 1e-15) ||
             block.getDifficulty() > BlockUtil.difficultyOf(block.getId()))
         {
-            System.out.println(block.getDifficulty() > BlockUtil.difficultyOf(block.getId()));
-            System.out.println(block.getDifficulty() >= difficulty * (1 + 1e-15));
-            System.out.println(block.getDifficulty() <= difficulty * (1 - 1e-15));
             throw new IllegalArgumentException();
         }
 
@@ -262,9 +258,9 @@ class BlockChainExecutor {
             }
         }
 
-        synchronized (inventoryManager.memoryPool) {
+        synchronized (inventory.memoryPool) {
             for (ByteArrayWrapper txId : txIds) {
-                inventoryManager.memoryPool.remove(txId);
+                inventory.memoryPool.remove(txId);
             }
         }
 
@@ -299,9 +295,9 @@ class BlockChainExecutor {
                 }
             }
 
-            synchronized (inventoryManager.memoryPool) {
+            synchronized (inventory.memoryPool) {
                 for (Transaction tx : txls) {
-                    inventoryManager.memoryPool.put(tx.getId(), tx);
+                    inventory.memoryPool.put(tx.getId(), tx);
                 }
             }
 
@@ -324,7 +320,7 @@ class BlockChainExecutor {
         for (ByteArrayWrapper floatingBlockId : pendingBlocks) {
             byte[] blockData;
 
-            blockData = inventoryManager.blocks.get(floatingBlockId);
+            blockData = inventory.blocks.get(floatingBlockId);
 
             if (blockData == null) {
                 continue;
@@ -349,7 +345,7 @@ class BlockChainExecutor {
             blockIds.forEach(x -> purgeBlock(x));
         }
 
-        inventoryManager.blocks.remove(id);
+        inventory.blocks.remove(id);
     }
 
     // getter
@@ -363,8 +359,8 @@ class BlockChainExecutor {
         return latest;
     }
     // setter
-    public void setInventoryManager(InventoryManager inventoryManager) {
-        this.inventoryManager = inventoryManager;
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
     public void setMiner(Miner miner) {
         this.miner = miner;

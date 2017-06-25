@@ -1,15 +1,6 @@
 # waffle
 Waffle core system
 
-## 参考になるサイト
-
-### MinChain
-
-.NETで実装されていて、最小限の実装で書かれたブロックチェーン通貨システム。
-スライド16ページのクラス図と似たものを作る予定。
-- ソース: https://github.com/yutopio/MinChain  
-- スライド: https://www.slideshare.net/YutoTakei/c-73041576
-
 ## Building Waffle
 
 Gradle is a java building tool. To build, simply run

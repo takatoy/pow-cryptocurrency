@@ -8,16 +8,17 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TransactionUtil {
+    public static ObjectMapper serializeMapper = new ObjectMapper();
+    static {
+        serializeMapper.addMixIn(Transaction.class, TransactionMixIn.class);
+    }
+
     public static Transaction deserializeTransaction(byte[] data) {
         String dataStr = new String(data);
 
-        // Json to transaction.
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Transaction.class, TransactionMixIn.class);
-
         Transaction tx = null;
         try {
-            tx = mapper.readValue(dataStr, Transaction.class);
+            tx = serializeMapper.readValue(dataStr, Transaction.class);
             tx.setOriginal(data);
             tx.setId(computeTransactionId(data));
         } catch (Exception e) {
@@ -32,13 +33,10 @@ public class TransactionUtil {
     }
 
     public static byte[] serializeTransaction(Transaction tx) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Transaction.class, TransactionMixIn.class);
-
         byte[] serialized = null;
 
         try {
-            serialized = mapper.writeValueAsBytes(tx);
+            serialized = serializeMapper.writeValueAsBytes(tx);
         } catch (Exception e) {
             e.printStackTrace();
         }

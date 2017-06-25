@@ -45,16 +45,16 @@ public class WaffleCore {
         genesis.prepareGenesis(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
         Block genesisBlock = Genesis.getGenesisBlock();
 
-        InventoryManager inventoryManager = new InventoryManager();
+        Inventory inventory = new Inventory();
         BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
         Miner miner = new Miner();
 
         blockChainExecutor.setMiner(miner);
-        blockChainExecutor.setInventoryManager(inventoryManager);
+        blockChainExecutor.setInventory(inventory);
         miner.setBlockChainExecutor(blockChainExecutor);
-        miner.setInventoryManager(inventoryManager);
+        miner.setInventory(inventory);
 
-        inventoryManager.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
+        inventory.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
         miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));

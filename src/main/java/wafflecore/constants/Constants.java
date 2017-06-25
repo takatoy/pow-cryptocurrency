@@ -13,4 +13,8 @@ public final class Constants {
     public static final byte[] EMPTY_BYTES = new byte[32];
     public static final int MAX_BLOCK_SIZE = 1024 * 1024; // 1MB
     public static final int HASH_LENGTH = 32;
+
+    public static final int MSG_TYPE_ADV = 0;
+    public static final int MSG_TYPE_REQ = 1;
+    public static final int MSG_TYPE_BDY = 2;
 }

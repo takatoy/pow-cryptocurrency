@@ -24,7 +24,7 @@ public class Miner {
     private Logger logger = Logger.getInstance();
     public static boolean isMining = false;
     private static Future<Void> miner = null;
-    private InventoryManager inventoryManager = null;
+    private Inventory inventory = null;
     private BlockChainExecutor blockChainExecutor = null;
     private byte[] recipientAddr;
 
@@ -94,7 +94,7 @@ public class Miner {
         ArrayList<Transaction> txs = new ArrayList<Transaction>();
 
         // Iteration over memory pool.
-        for (Map.Entry<ByteArrayWrapper, Transaction> txEntry : inventoryManager.memoryPool.entrySet()) {
+        for (Map.Entry<ByteArrayWrapper, Transaction> txEntry : inventory.memoryPool.entrySet()) {
             Transaction tx = txEntry.getValue();
 
             size += tx.getOriginal().length + 50;
@@ -184,8 +184,8 @@ public class Miner {
     }
 
     // setter
-    public void setInventoryManager(InventoryManager inventoryManager) {
-        this.inventoryManager = inventoryManager;
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
     public void setBlockChainExecutor(BlockChainExecutor blockChainExecutor) {
         this.blockChainExecutor = blockChainExecutor;
