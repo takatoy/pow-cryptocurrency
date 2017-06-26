@@ -1,7 +1,6 @@
 package wafflecore.message;
 
-public class Message {
-    public static int getMessageType() {
-        return 0;
-    }
+public abstract class Message {
+    public static abstract int getMessageType();
+    public static Message getPayload();
 }

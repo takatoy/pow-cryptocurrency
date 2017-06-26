@@ -29,7 +29,7 @@ public class Block {
     private ArrayList<ByteArrayWrapper> transactionIds;
     @JsonIgnore
     private ArrayList<byte[]> transactions;
-    @JsonProperty("height")
+    @JsonIgnore
     private int height;
     @JsonProperty("txs")
     private ArrayList<Transaction> parsedTransactions;
