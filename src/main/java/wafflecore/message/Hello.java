@@ -15,16 +15,6 @@ public class Hello extends Message {
     @JsonProperty("blocks")
     private ArrayList<ByteArrayWrapper> knownBlocks;
 
-    @Override @JsonIgnore
-    public static int getMessageType() {
-        return MSG_TYPE_HELLO;
-    }
-
-    @Override @JsonIgnore
-    public static int getPayload() {
-        MessageSerializer.serialize(this);
-    }
-
     // getter
     public ArrayList<String> getMyPeers() {
         return myPeers;
