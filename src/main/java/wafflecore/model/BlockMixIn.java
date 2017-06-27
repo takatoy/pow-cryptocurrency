@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 // For serialization.
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class BlockMixIn {
     @JsonIgnore
     private byte[] original; // Original Block bytes

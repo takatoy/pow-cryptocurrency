@@ -1,12 +1,19 @@
 package wafflecore.message;
 
 import static wafflecore.constants.Constants.*;
+import wafflecore.util.ByteArrayWrapper;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InventoryMessage extends Message {
-    @JsonProperty("msgtype")
-    private final int messageType = MSG_TYPE_INVENTORY;
+    @JsonIgnore
+    public final MessageType messageType = MessageType.MSG_TYPE_INVENTORY;
     @JsonProperty("invtype")
-    private int inventoryMessageType;
+    private InventoryMessageType inventoryMessageType;
     @JsonProperty("id")
     private ByteArrayWrapper objectId;
     @JsonProperty("isblock")
@@ -14,11 +21,24 @@ public class InventoryMessage extends Message {
     @JsonProperty("data")
     private byte[] data;
 
-    // getter
-    @Override
-    public static int getMessageType() {
-        return messageType;
+    @JsonCreator
+    public InventoryMessage(
+        int inventoryMessageType,
+        ByteArrayWrapper objectId,
+        boolean isBlock,
+        byte[] data)
+    {
+        this.inventoryMessageType = inventoryMessageType;
+        this.objectId = objectId;
+        this.isBlock = isBlock;
+        this.data = data;
     }
+
+    public Envelope packToEnvelope() {
+        return new Envelope(messageType, MessageUtil.serialize(this));
+    }
+
+    // getter
     public int getInventoryMessageType() {
         return inventoryMessageType;
     }

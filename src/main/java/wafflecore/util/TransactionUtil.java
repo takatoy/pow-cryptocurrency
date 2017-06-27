@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TransactionUtil {
-    public static ObjectMapper serializeMapper = new ObjectMapper();
+    public static ObjectMapper mapper = new ObjectMapper();
     static {
-        serializeMapper.addMixIn(Transaction.class, TransactionMixIn.class);
+        mapper.addMixIn(Transaction.class, TransactionMixIn.class);
     }
 
     public static Transaction deserializeTransaction(byte[] data) {
@@ -18,7 +18,7 @@ public class TransactionUtil {
 
         Transaction tx = null;
         try {
-            tx = serializeMapper.readValue(dataStr, Transaction.class);
+            tx = mapper.readValue(dataStr, Transaction.class);
             tx.setOriginal(data);
             tx.setId(computeTransactionId(data));
         } catch (Exception e) {
@@ -36,7 +36,7 @@ public class TransactionUtil {
         byte[] serialized = null;
 
         try {
-            serialized = serializeMapper.writeValueAsBytes(tx);
+            serialized = mapper.writeValueAsBytes(tx);
         } catch (Exception e) {
             e.printStackTrace();
         }

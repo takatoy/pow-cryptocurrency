@@ -47,7 +47,7 @@ public class Miner {
             seed.setTimestamp(System.currentTimeMillis());
             // System.out.println(nonce);
 
-            byte[] data = BlockUtil.serializeBlock(seed);
+            byte[] data = BlockUtil.serialize(seed);
             ByteArrayWrapper blockId = BlockUtil.computeBlockId(data);
 
             if (BlockUtil.difficultyOf(blockId) > seed.getDifficulty()) {
@@ -164,7 +164,7 @@ public class Miner {
 
         // @TODO broadcastasync(block);
 
-        byte[] serialized = BlockUtil.serializeBlock(block);
+        byte[] serialized = BlockUtil.serialize(block);
         blockChainExecutor.processBlock(serialized, block.getPreviousHash());
     }
 

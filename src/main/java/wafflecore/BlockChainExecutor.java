@@ -51,7 +51,7 @@ class BlockChainExecutor {
         }
 
         // Mark block as connected.
-        Block blk = BlockUtil.deserializeBlock(data);
+        Block blk = BlockUtil.deserialize(data);
 
         blk.setHeight(prevBlock.getHeight() + 1);
         blk.setTotalDifficulty(blk.getDifficulty() + prevBlock.getTotalDifficulty());

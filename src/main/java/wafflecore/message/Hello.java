@@ -2,18 +2,27 @@ package wafflecore.message;
 
 import static wafflecore.constants.Constants.*;
 import wafflecore.util.ByteArrayWrapper;
+import wafflecore.util.MessageUtil;
 
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Hello extends Message {
+    @JsonIgnore
+    public final MessageType messageType = MSG_TYPE_HELLO;
     @JsonProperty("peers")
     private ArrayList<String> myPeers;
     @JsonProperty("genesis")
     private ByteArrayWrapper genesisId;
     @JsonProperty("blocks")
     private ArrayList<ByteArrayWrapper> knownBlocks;
+
+    public Envelope packToEnvelope() {
+        return new Message(messageType, MessageUtil.serialize(this));
+    }
 
     // getter
     public ArrayList<String> getMyPeers() {
