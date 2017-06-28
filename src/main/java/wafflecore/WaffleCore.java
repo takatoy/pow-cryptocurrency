@@ -53,7 +53,6 @@ public class WaffleCore {
         miner.setConnectionManager(connectionManager);
         miner.setMessageHandler(messageHandler);
 
-        System.out.println("hello");
         // Prepare MessageHandler.
         messageHandler.setInventory(inventory);
         messageHandler.setBlockChainExecutor(blockChainExecutor);
@@ -63,13 +62,11 @@ public class WaffleCore {
         connectionManager.setMessageHandler(messageHandler);
         connectionManager.setBlockChainExecutor(blockChainExecutor);
         connectionManager.start();
-        System.out.println("hello2");
 
         // Process genesis block.
         inventory.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
-        scan.next();
         if (!"-1".equals(cHostName) && cPort != -1)
             connectionManager.asyncConnect(cHostName, cPort);
 
