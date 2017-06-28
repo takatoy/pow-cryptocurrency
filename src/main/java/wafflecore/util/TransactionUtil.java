@@ -8,17 +8,17 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TransactionUtil {
-    public static ObjectMapper serializeMapper = new ObjectMapper();
+    public static ObjectMapper mapper = new ObjectMapper();
     static {
-        serializeMapper.addMixIn(Transaction.class, TransactionMixIn.class);
+        mapper.addMixIn(Transaction.class, TransactionMixIn.class);
     }
 
-    public static Transaction deserializeTransaction(byte[] data) {
+    public static Transaction deserialize(byte[] data) {
         String dataStr = new String(data);
 
         Transaction tx = null;
         try {
-            tx = serializeMapper.readValue(dataStr, Transaction.class);
+            tx = mapper.readValue(dataStr, Transaction.class);
             tx.setOriginal(data);
             tx.setId(computeTransactionId(data));
         } catch (Exception e) {
@@ -32,11 +32,11 @@ public class TransactionUtil {
         return ByteArrayWrapper.copyOf(Hasher.doubleSha256(data));
     }
 
-    public static byte[] serializeTransaction(Transaction tx) {
+    public static byte[] serialize(Transaction tx) {
         byte[] serialized = null;
 
         try {
-            serialized = serializeMapper.writeValueAsBytes(tx);
+            serialized = mapper.writeValueAsBytes(tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,7 +45,7 @@ public class TransactionUtil {
     }
 
     public static byte[] getTransactionSignHash(byte[] data) {
-        Transaction tx = deserializeTransaction(data);
+        Transaction tx = deserialize(data);
 
         ArrayList<InEntry> inEntries = tx.getInEntries();
         for (InEntry in : inEntries) {
@@ -54,7 +54,7 @@ public class TransactionUtil {
         }
         tx.setInEntries(inEntries);
 
-        byte[] bytes = serializeTransaction(tx);
+        byte[] bytes = serialize(tx);
         return Hasher.doubleSha256(bytes);
     }
 }

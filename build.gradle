@@ -4,7 +4,7 @@ apply plugin: 'application'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-mainClassName = 'wafflecore.WaffleCore'
+mainClassName = 'Waffle'
 
 def defaultEncoding = 'UTF-8'
 
@@ -16,5 +16,10 @@ repositories {
 
 dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.8.9'
     compile 'org.apache.commons:commons-lang3:3.1'
+}
+
+run {
+    standardInput = System.in
 }

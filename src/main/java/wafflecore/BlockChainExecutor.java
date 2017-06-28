@@ -24,7 +24,7 @@ class BlockChainExecutor {
     private Miner miner;
 
     // key: block id / value: Block
-    private ConcurrentHashMap<ByteArrayWrapper, Block> blocks = new ConcurrentHashMap<ByteArrayWrapper, Block>();
+    public ConcurrentHashMap<ByteArrayWrapper, Block> blocks = new ConcurrentHashMap<ByteArrayWrapper, Block>();
     // key: ancestor block id / value: floating block ids
     private ConcurrentHashMap<ByteArrayWrapper, ArrayList<ByteArrayWrapper>> floatingBlocks = new ConcurrentHashMap<ByteArrayWrapper, ArrayList<ByteArrayWrapper>>();
     private ConcurrentHashMap<ByteArrayWrapper, TransactionOutput> utxos = new ConcurrentHashMap<ByteArrayWrapper, TransactionOutput>();
@@ -51,7 +51,7 @@ class BlockChainExecutor {
         }
 
         // Mark block as connected.
-        Block blk = BlockUtil.deserializeBlock(data);
+        Block blk = BlockUtil.deserialize(data);
 
         blk.setHeight(prevBlock.getHeight() + 1);
         blk.setTotalDifficulty(blk.getDifficulty() + prevBlock.getTotalDifficulty());
@@ -150,7 +150,7 @@ class BlockChainExecutor {
         ArrayList<ByteArrayWrapper> txIds = block.getTransactionIds();
         ArrayList<Transaction> parsedTxs = new ArrayList<Transaction>();
         for (int i = 0; i < txs.size(); i++) {
-            Transaction tx = TransactionUtil.deserializeTransaction(txs.get(i));
+            Transaction tx = TransactionUtil.deserialize(txs.get(i));
             if (!tx.getId().equals(txIds.get(i))) {
                 throw new IllegalArgumentException();
             }

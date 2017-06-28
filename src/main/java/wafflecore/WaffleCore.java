@@ -24,22 +24,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class WaffleCore {
     private static ExecutorService service = null; // Thread Executor
 
-    public static void main(String[] args) throws Exception {
+    public static void run() {
         File dataDir = new File(DATA_DIR);
         dataDir.mkdir();
 
         // Initiate thread executor
         service = Executors.newCachedThreadPool();
-
-        // ConnectionManager connectionManager = new ConnectionManager("localhost", 9001);
-        // connectionManager.listen(); // listen
-
-        // System.out.println("Program still going.");
-        // try {
-        //     Thread.sleep(5000);
-        // } catch (Exception e) {}
-
-        // connectionManager.asyncBroadcast("Hello?");
 
         Genesis genesis = new Genesis();
         genesis.prepareGenesis(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
@@ -48,11 +38,14 @@ public class WaffleCore {
         Inventory inventory = new Inventory();
         BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
         Miner miner = new Miner();
+        MessageHandler messageHandler = new MessageHandler();
+        ConnectionManager connectionManager = new ConnectionManager("localhost", 9001);
 
         blockChainExecutor.setMiner(miner);
         blockChainExecutor.setInventory(inventory);
         miner.setBlockChainExecutor(blockChainExecutor);
         miner.setInventory(inventory);
+        connectionManager.setMessageHandler(messageHandler);
 
         inventory.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());

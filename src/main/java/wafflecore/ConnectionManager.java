@@ -2,6 +2,8 @@ package wafflecore;
 
 import wafflecore.tool.Logger;
 import wafflecore.WaffleCore;
+import wafflecore.message.*;
+import wafflecore.util.MessageUtil;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,6 +13,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Callable;
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.Selector;
@@ -23,6 +27,9 @@ public class ConnectionManager {
     private boolean listening = true;
     private Selector selector;
     private ByteBuffer buf = ByteBuffer.allocate(256);
+    private HashMap<String, SocketChannel> peers = new HashMap<String, SocketChannel>();
+
+    private MessageHandler messageHandler;
 
     public ConnectionManager(String hostName, int port) {
         this(new InetSocketAddress(hostName, port));
@@ -42,44 +49,42 @@ public class ConnectionManager {
     }
 
     public void start() {
-        listen();
-    }
-
-    public void listen() {
         ExecutorService executor = WaffleCore.getExecutor();
 
         executor.submit(new Callable<Void>() {
             @Override
             public Void call() {
-                while (listening) {
-                    try {
-                        selector.select();
-                    } catch (IOException e) {
-                        return null;
-                    }
-
-                    Iterator<SelectionKey> it = selector.selectedKeys().iterator();
-
-                    while (it.hasNext()) {
-                        SelectionKey key = (SelectionKey) it.next();
-                        it.remove();
-
-                        if (!key.isValid()) {
-                            continue;
-                        }
-
-                        if (key.isAcceptable()) {
-                            handleAccept(key);
-                        } else if (key.isReadable()) {
-                            handleRead(key);
-                            response((SocketChannel) key.channel());
-                        }
-                    }
-                }
-
+                listen();
                 return null;
             }
         });
+    }
+
+    public void listen() {
+        while (listening) {
+            try {
+                selector.select();
+            } catch (IOException e) {
+                return;
+            }
+
+            Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+
+            while (it.hasNext()) {
+                SelectionKey key = (SelectionKey) it.next();
+                it.remove();
+
+                if (!key.isValid()) {
+                    continue;
+                }
+
+                if (key.isAcceptable()) {
+                    handleAccept(key);
+                } else if (key.isReadable()) {
+                    handleRead(key);
+                }
+            }
+        }
     }
 
     private void handleAccept(SelectionKey key) {
@@ -89,7 +94,9 @@ public class ConnectionManager {
             socketChannel = serverSocketChannel.accept();
             socketChannel.configureBlocking(false);
             socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-            System.out.println("ACCEPTED: " + socketChannel);
+            logger.log("ACCEPTED: " + socketChannel);
+
+            peers.put(socketChannel.getRemoteAddress().toString(), socketChannel);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -97,7 +104,8 @@ public class ConnectionManager {
 
     private void handleRead(SelectionKey key) {
         SocketChannel socketChannel = (SocketChannel) key.channel();
-        StringBuilder sb = new StringBuilder();
+        byte[] data = null;
+        String peerStr = "";
 
         try {
             buf.clear();
@@ -106,29 +114,33 @@ public class ConnectionManager {
                 buf.flip();
                 byte[] bytes = new byte[buf.limit()];
                 buf.get(bytes);
-                sb.append(new String(bytes));
-                buf.clear();
             }
+            buf.get(data);
+
+            peerStr = socketChannel.getRemoteAddress().toString();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        System.out.println(sb.toString());
+        if (data != null) {
+            Envelope env = MessageUtil.deserialize(data);
+            messageHandler.handleMessage(env, peerStr);
+        }
     }
 
     /**
      *  Send message to all peers.
      */
-    public void asyncBroadcast(String msg) {
+    public void asyncBroadcast(byte[] msg) {
         ExecutorService executor = WaffleCore.getExecutor();
 
         executor.submit(new Callable<Void>() {
             @Override
             public Void call() {
                 try {
-                    ByteBuffer buf = ByteBuffer.wrap(msg.getBytes());
+                    ByteBuffer buf = ByteBuffer.wrap(msg);
                     for (SelectionKey key : selector.keys()) {
-                        if (key.isValid() && key.channel() instanceof SocketChannel) {
+                        if (key.isValid() && key.isWritable() && key.channel() instanceof SocketChannel) {
                             SocketChannel socketChannel = (SocketChannel) key.channel();
                             socketChannel.write(buf);
                             buf.rewind();
@@ -142,25 +154,49 @@ public class ConnectionManager {
         });
     }
 
-    // Will delete, just used for test
-    private void response(SocketChannel channel) {
-        ByteBuffer buf = ByteBuffer.allocate(1000);
-        Charset charset = Charset.forName("UTF-8");
-        String remoteAddr = channel.socket().getRemoteSocketAddress().toString();
+    public void asyncSend(byte[] msg, String addr) {
+        ExecutorService executor = WaffleCore.getExecutor();
 
-        try {
-            if (channel.read(buf) < 0) {
-                return;
+        executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    ByteBuffer buf = ByteBuffer.wrap(msg);
+                    SocketChannel socketChannel = peers.get(addr);
+                    socketChannel.write(buf);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return null;
             }
-            String http = "";
-            http += "HTTP/1.1 200 OK\n";
-            http += "Content-Type: text/html\n";
-            http += "\n";
-            http += "<html><head><title>HEY</title></head><body><h1>Hello, World!</h1></body></html>";
-            channel.write(ByteBuffer.wrap(http.getBytes(charset)));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        });
     }
+
+    // setter
+    public void setMessageHandler(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
+    }
+
+    // Will delete, just used for test
+    // private void response(SocketChannel channel) {
+    //     ByteBuffer buf = ByteBuffer.allocate(1000);
+    //     Charset charset = Charset.forName("UTF-8");
+    //     String remoteAddr = channel.socket().getRemoteSocketAddress().toString();
+
+    //     try {
+    //         if (channel.read(buf) < 0) {
+    //             return;
+    //         }
+    //         String http = "";
+    //         http += "HTTP/1.1 200 OK\n";
+    //         http += "Content-Type: text/html\n";
+    //         http += "\n";
+    //         http += "<html><head><title>HEY</title></head><body><h1>Hello, World!</h1></body></html>";
+    //         channel.write(ByteBuffer.wrap(http.getBytes(charset)));
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         return;
+    //     }
+    // }
 }

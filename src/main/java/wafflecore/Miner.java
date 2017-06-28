@@ -47,7 +47,7 @@ public class Miner {
             seed.setTimestamp(System.currentTimeMillis());
             // System.out.println(nonce);
 
-            byte[] data = BlockUtil.serializeBlock(seed);
+            byte[] data = BlockUtil.serialize(seed);
             ByteArrayWrapper blockId = BlockUtil.computeBlockId(data);
 
             if (BlockUtil.difficultyOf(blockId) > seed.getDifficulty()) {
@@ -127,7 +127,7 @@ public class Miner {
         OutEntry coinbaseOut = new OutEntry(recipientAddr, coinbase);
         coinbaseTx.setOutEntries(new ArrayList<OutEntry>(Arrays.asList(coinbaseOut)));
 
-        coinbaseTx = TransactionUtil.deserializeTransaction(TransactionUtil.serializeTransaction(coinbaseTx));
+        coinbaseTx = TransactionUtil.deserialize(TransactionUtil.serialize(coinbaseTx));
 
         try {
             blockChainExecutor.runTransaction(coinbaseTx, blockTime, coinbase, null);
@@ -164,7 +164,7 @@ public class Miner {
 
         // @TODO broadcastasync(block);
 
-        byte[] serialized = BlockUtil.serializeBlock(block);
+        byte[] serialized = BlockUtil.serialize(block);
         blockChainExecutor.processBlock(serialized, block.getPreviousHash());
     }
 
@@ -176,7 +176,7 @@ public class Miner {
         tx.setInEntries(new ArrayList<InEntry>());
         tx.setOutEntries(new ArrayList<OutEntry>(Arrays.asList(coinbaseOut)));
 
-        byte[] serialized = TransactionUtil.serializeTransaction(tx);
+        byte[] serialized = TransactionUtil.serialize(tx);
         tx.setOriginal(serialized);
         tx.setId(TransactionUtil.computeTransactionId(serialized));
 

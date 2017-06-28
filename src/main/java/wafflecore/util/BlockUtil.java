@@ -12,18 +12,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockUtil {
-    public static ObjectMapper serializeMapper = new ObjectMapper();
+    private static ObjectMapper mapper = new ObjectMapper();
     static {
-        serializeMapper.addMixIn(Block.class, BlockMixIn.class);
+        mapper.addMixIn(Block.class, BlockMixIn.class);
     }
 
-    public static Block deserializeBlock(byte[] data) {
+    public static Block deserialize(byte[] data) {
         String dataStr = new String(data);
 
         // Json to block.
         Block block = null;
         try {
-            block = serializeMapper.readValue(dataStr, Block.class);
+            block = mapper.readValue(dataStr, Block.class);
             block.setOriginal(data);
             block.setId(computeBlockId(data));
         } catch (Exception e) {
@@ -33,11 +33,11 @@ public class BlockUtil {
         return block;
     }
 
-    public static byte[] serializeBlock(Block block) {
+    public static byte[] serialize(Block block) {
         byte[] serialized = null;
 
         try {
-            serialized = serializeMapper.writeValueAsBytes(block);
+            serialized = mapper.writeValueAsBytes(block);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,11 +63,11 @@ public class BlockUtil {
 
     public static ByteArrayWrapper computeBlockId(byte[] data) {
         try {
-            Block block = serializeMapper.readValue(data, Block.class);
+            Block block = mapper.readValue(data, Block.class);
             block.setTransactions(null);
             block.setTransactionIds(null);
 
-            return ByteArrayWrapper.copyOf(Hasher.doubleSha256(serializeBlock(block)));
+            return ByteArrayWrapper.copyOf(Hasher.doubleSha256(serialize(block)));
         } catch(Exception e){
             e.printStackTrace();
         }
