@@ -127,7 +127,7 @@ public class Miner {
         OutEntry coinbaseOut = new OutEntry(recipientAddr, coinbase);
         coinbaseTx.setOutEntries(new ArrayList<OutEntry>(Arrays.asList(coinbaseOut)));
 
-        coinbaseTx = TransactionUtil.deserializeTransaction(TransactionUtil.serializeTransaction(coinbaseTx));
+        coinbaseTx = TransactionUtil.deserialize(TransactionUtil.serialize(coinbaseTx));
 
         try {
             blockChainExecutor.runTransaction(coinbaseTx, blockTime, coinbase, null);
@@ -176,7 +176,7 @@ public class Miner {
         tx.setInEntries(new ArrayList<InEntry>());
         tx.setOutEntries(new ArrayList<OutEntry>(Arrays.asList(coinbaseOut)));
 
-        byte[] serialized = TransactionUtil.serializeTransaction(tx);
+        byte[] serialized = TransactionUtil.serialize(tx);
         tx.setOriginal(serialized);
         tx.setId(TransactionUtil.computeTransactionId(serialized));
 

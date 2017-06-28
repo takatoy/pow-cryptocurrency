@@ -1,5 +1,6 @@
 package wafflecore.message;
 
+import wafflecore.message.type.MessageType;
 import wafflecore.util.MessageUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,14 +13,21 @@ public class Envelope {
     @JsonProperty("payload")
     private Message payload;
 
-    public int getMessageType() {
+    public Envelope(MessageType messageType, Message payload) {
+        this.messageType = messageType;
+        this.payload = payload;
+    }
+
+    public Envelope() {}
+
+    public MessageType getMessageType() {
         return messageType;
     }
     public Message getPayload() {
         return payload;
     }
 
-    public void setMessageType(int messageType) {
+    public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
     }
     public void setPayload(Message payload) {

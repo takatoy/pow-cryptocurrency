@@ -13,7 +13,7 @@ public class TransactionUtil {
         mapper.addMixIn(Transaction.class, TransactionMixIn.class);
     }
 
-    public static Transaction deserializeTransaction(byte[] data) {
+    public static Transaction deserialize(byte[] data) {
         String dataStr = new String(data);
 
         Transaction tx = null;
@@ -32,7 +32,7 @@ public class TransactionUtil {
         return ByteArrayWrapper.copyOf(Hasher.doubleSha256(data));
     }
 
-    public static byte[] serializeTransaction(Transaction tx) {
+    public static byte[] serialize(Transaction tx) {
         byte[] serialized = null;
 
         try {
@@ -45,7 +45,7 @@ public class TransactionUtil {
     }
 
     public static byte[] getTransactionSignHash(byte[] data) {
-        Transaction tx = deserializeTransaction(data);
+        Transaction tx = deserialize(data);
 
         ArrayList<InEntry> inEntries = tx.getInEntries();
         for (InEntry in : inEntries) {
@@ -54,7 +54,7 @@ public class TransactionUtil {
         }
         tx.setInEntries(inEntries);
 
-        byte[] bytes = serializeTransaction(tx);
+        byte[] bytes = serialize(tx);
         return Hasher.doubleSha256(bytes);
     }
 }

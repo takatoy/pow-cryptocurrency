@@ -1,6 +1,8 @@
 package wafflecore.message;
 
 import static wafflecore.constants.Constants.*;
+import static wafflecore.message.type.MessageType.*;
+import wafflecore.message.type.MessageType;
 import wafflecore.util.ByteArrayWrapper;
 import wafflecore.util.MessageUtil;
 
@@ -12,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Hello extends Message {
     @JsonIgnore
-    public final MessageType messageType = MSG_TYPE_HELLO;
+    public final MessageType messageType = HELLO;
     @JsonProperty("peers")
     private ArrayList<String> myPeers;
     @JsonProperty("genesis")
@@ -20,8 +22,20 @@ public class Hello extends Message {
     @JsonProperty("blocks")
     private ArrayList<ByteArrayWrapper> knownBlocks;
 
+    public Hello(
+        @JsonProperty("invtype") ArrayList<String> myPeers,
+        @JsonProperty("invtype") ByteArrayWrapper genesisId,
+        @JsonProperty("invtype") ArrayList<ByteArrayWrapper> knownBlocks)
+    {
+        this.myPeers = myPeers;
+        this.genesisId = genesisId;
+        this.knownBlocks = knownBlocks;
+    }
+
+    public Hello() {}
+
     public Envelope packToEnvelope() {
-        return new Message(messageType, MessageUtil.serialize(this));
+        return new Envelope(messageType, this);
     }
 
     // getter

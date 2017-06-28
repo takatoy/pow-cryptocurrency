@@ -1,17 +1,25 @@
 package wafflecore.message;
 
 import static wafflecore.constants.Constants.*;
+import static wafflecore.message.type.MessageType.*;
+import static wafflecore.message.type.InventoryMessageType.*;
+import wafflecore.message.type.MessageType;
+import wafflecore.message.type.InventoryMessageType;
 import wafflecore.util.ByteArrayWrapper;
+import wafflecore.util.MessageUtil;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InventoryMessage extends Message {
     @JsonIgnore
-    public final MessageType messageType = MessageType.MSG_TYPE_INVENTORY;
+    public final MessageType messageType = INVENTORY;
     @JsonProperty("invtype")
     private InventoryMessageType inventoryMessageType;
     @JsonProperty("id")
@@ -23,10 +31,10 @@ public class InventoryMessage extends Message {
 
     @JsonCreator
     public InventoryMessage(
-        int inventoryMessageType,
-        ByteArrayWrapper objectId,
-        boolean isBlock,
-        byte[] data)
+        @JsonProperty("invtype") InventoryMessageType inventoryMessageType,
+        @JsonProperty("id") ByteArrayWrapper objectId,
+        @JsonProperty("isblock") boolean isBlock,
+        @JsonProperty("data") byte[] data)
     {
         this.inventoryMessageType = inventoryMessageType;
         this.objectId = objectId;
@@ -34,12 +42,28 @@ public class InventoryMessage extends Message {
         this.data = data;
     }
 
+    public InventoryMessage() {}
+
+    public String toJson() {
+        String json = "";
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return json;
+    }
+
     public Envelope packToEnvelope() {
-        return new Envelope(messageType, MessageUtil.serialize(this));
+        return new Envelope(messageType, this);
     }
 
     // getter
-    public int getInventoryMessageType() {
+    public InventoryMessageType getInventoryMessageType() {
         return inventoryMessageType;
     }
     public ByteArrayWrapper getObjectId() {
@@ -53,7 +77,7 @@ public class InventoryMessage extends Message {
     }
 
     // setter
-    public void setInventoryMessageType(int inventoryMessageType) {
+    public void setInventoryMessageType(InventoryMessageType inventoryMessageType) {
         this.inventoryMessageType = inventoryMessageType;
     }
     public void setObjectId(ByteArrayWrapper objectId) {
