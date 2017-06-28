@@ -1,6 +1,7 @@
 package wafflecore.util;
 
 import wafflecore.message.*;
+import wafflecore.tool.Logger;
 
 import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonParser;
 
 public class MessageUtil {
+    private static Logger logger = Logger.getInstance();
     private static ObjectMapper mapper = new ObjectMapper();
     private static SimpleModule module = new SimpleModule();
     static {
@@ -26,7 +28,7 @@ public class MessageUtil {
             Envelope env = mapper.readValue(data, Envelope.class);
             return env;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log("Invalid data received.");
         }
 
         return null;

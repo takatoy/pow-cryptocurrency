@@ -1,5 +1,7 @@
 package wafflecore.tool;
 
+import static wafflecore.constants.Constants.*;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +13,7 @@ public class Logger {
     public static String logFilePath;
 
     private Logger() {
-        logFilePath = Config.getValue("LOG_FILE_PATH");
+        logFilePath = LOG_FILE_PATH;
 
         try {
             file = new File(logFilePath);

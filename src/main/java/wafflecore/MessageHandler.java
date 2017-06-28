@@ -155,6 +155,7 @@ public class MessageHandler {
         executor.submit(new Callable<Void>() {
             @Override
             public Void call() {
+                try{
                 byte[] data = msg.getData();
                 if (data.length > MAX_BLOCK_SIZE) throw new IllegalArgumentException();
 
@@ -202,6 +203,10 @@ public class MessageHandler {
                 connectionManager.asyncBroadcast(MessageUtil.serialize(env));
 
                 return null;
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+            return null;
             }
         });
     }

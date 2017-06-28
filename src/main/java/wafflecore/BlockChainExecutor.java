@@ -348,6 +348,13 @@ class BlockChainExecutor {
         inventory.blocks.remove(id);
     }
 
+    public ArrayList<ByteArrayWrapper> getKnownBlockIds() {
+        ArrayList<ByteArrayWrapper> blockIds = new ArrayList<ByteArrayWrapper>();
+        blocks.forEach((key, val) -> blockIds.add(key));
+
+        return blockIds;
+    }
+
     // getter
     public ConcurrentHashMap<ByteArrayWrapper, Block> getBlocks() {
         return blocks;

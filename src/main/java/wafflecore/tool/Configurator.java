@@ -3,10 +3,10 @@ package wafflecore.tool;
 import static wafflecore.constants.Constants.*;
 
 // need to consider the config structure later...
-public class Config {
-    // public void readConfigFile() {
+public class Configurator {
+    public void getConfig() {
 
-    // }
+    }
 
     public static String getValue(String name) {
         String val = "";

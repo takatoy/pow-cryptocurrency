@@ -1,12 +1,16 @@
 package wafflecore;
 
 import static wafflecore.constants.Constants.*;
+import static wafflecore.message.type.InventoryMessageType.*;
+import wafflecore.message.type.*;
 import wafflecore.tool.Logger;
 import wafflecore.tool.SystemUtil;
 import wafflecore.WaffleCore;
 import wafflecore.BlockChainExecutor;
 import wafflecore.model.*;
+import wafflecore.message.*;
 import wafflecore.util.BlockUtil;
+import wafflecore.util.MessageUtil;
 import wafflecore.util.BlockChainUtil;
 import wafflecore.util.TransactionUtil;
 import wafflecore.util.ByteArrayWrapper;
@@ -24,8 +28,12 @@ public class Miner {
     private Logger logger = Logger.getInstance();
     public static boolean isMining = false;
     private static Future<Void> miner = null;
+
     private Inventory inventory = null;
     private BlockChainExecutor blockChainExecutor = null;
+    private ConnectionManager connectionManager = null;
+    private MessageHandler messageHandler = null;
+
     private byte[] recipientAddr;
 
     public static boolean mineGenesis(Block genesis) {
@@ -162,10 +170,17 @@ public class Miner {
         logger.log("Block mined:" + idStr);
         System.out.println(block.toJson());
 
-        // @TODO broadcastasync(block);
-
         byte[] serialized = BlockUtil.serialize(block);
-        blockChainExecutor.processBlock(serialized, block.getPreviousHash());
+
+        InventoryMessage msg = new InventoryMessage(
+            CONTENT,
+            block.getId(),
+            true,
+            serialized
+        );
+        Envelope env = msg.packToEnvelope();
+        connectionManager.asyncBroadcast(MessageUtil.serialize(env));
+        messageHandler.handleMessage(env, "");
     }
 
     public static Transaction createCoinbase(int height, byte[] recipient) {
@@ -189,6 +204,12 @@ public class Miner {
     }
     public void setBlockChainExecutor(BlockChainExecutor blockChainExecutor) {
         this.blockChainExecutor = blockChainExecutor;
+    }
+    public void setConnectionManager(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+    public void setMessageHandler(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
     }
     public void setRecipientAddr(byte[] recipientAddr) {
         this.recipientAddr = recipientAddr;
