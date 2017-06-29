@@ -42,6 +42,7 @@ class Waffle {
             Config.setIsGui(true);
             WaffleGraphic gui = new WaffleGraphic();
             while (!gui.isReady()) {}
+            System.out.println("waiting");
             core.run();
         }
     }

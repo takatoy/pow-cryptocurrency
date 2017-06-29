@@ -62,14 +62,14 @@ public class WaffleGraphic implements ActionListener {
         peerHostNameField.setPreferredSize(null);
         peerHostNameField.setHorizontalAlignment(JTextField.CENTER);
 
-        peerPortField = new JTextField("1189");
+        peerPortField = new JTextField();
         peerPortField.setPreferredSize(null);
         peerPortField.setHorizontalAlignment(JTextField.CENTER);
 
         miningCheck = new JCheckBox();
         miningCheck.setPreferredSize(null);
 
-        executeButton = new JButton("Execute");
+        executeButton = new JButton("Run");
         executeButton.setPreferredSize(null);
         executeButton.addActionListener(this);
 
