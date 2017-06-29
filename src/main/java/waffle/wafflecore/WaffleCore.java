@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 public class WaffleCore {
     private static ExecutorService service = null; // Thread Executor
     private static Logger logger = Logger.getInstance();
+    private static boolean ready = false;
 
     public static void run() {
         int listenPort = -1;
@@ -83,6 +84,8 @@ public class WaffleCore {
         inventory.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
+        ready = true;
+
         if (!"-1".equals(peerHostName) && peerPort != -1) {
             // Just in case wait for 5 seconds to start mining.
             logger.log("Preparing, wait for 20 seconds...");
@@ -92,6 +95,8 @@ public class WaffleCore {
                 e.printStackTrace();
             }
         }
+
+        while (!ready) {}
 
         if (isMining) {
             miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
@@ -104,5 +109,9 @@ public class WaffleCore {
 
     public static ExecutorService getExecutor() {
         return service;
+    }
+
+    public static void notifyReady() {
+        ready = true;
     }
 }

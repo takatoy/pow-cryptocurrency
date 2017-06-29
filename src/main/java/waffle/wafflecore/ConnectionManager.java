@@ -110,6 +110,8 @@ public class ConnectionManager {
             }
             socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         } catch (Exception e) {
+            System.out.println("Error connecting to peer.");
+            System.exit(1);
             e.printStackTrace();
         }
     }

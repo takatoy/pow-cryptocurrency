@@ -48,8 +48,6 @@ class BlockChainExecutor {
                 floatingBlocks.put(prevId, flBlocks);
             }
             flBlocks.add(blk.getId());
-
-            logger.log("FLOATING SIZE:" + floatingBlocks.size() + " / PREVID:" + prevId.toString());
             return;
         }
 

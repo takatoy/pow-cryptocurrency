@@ -23,6 +23,8 @@ public class WaffleGraphic implements ActionListener {
     private JTextArea logArea;
     private JScrollPane logScroll;
 
+    private boolean ready = false;
+
     public WaffleGraphic() {
         frame = new JFrame("Waffle Control");
         frame.setSize(400, 450);
@@ -126,6 +128,11 @@ public class WaffleGraphic implements ActionListener {
 
         Config.setListenPort(Integer.parseInt(listenPortField.getText()));
         Config.setIsMining(miningCheck.isSelected());
+        ready = true;
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 
     public void addLog(String log) {

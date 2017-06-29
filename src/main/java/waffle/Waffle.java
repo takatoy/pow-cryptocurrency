@@ -18,6 +18,8 @@ class Waffle {
         if (args.length == 1 && "cli".equals(args[0])) {
             Scanner scan = new Scanner(System.in);
 
+            Config.setIsGui(false);
+
             System.out.print("Listen Port Number: ");
             int listenPort = scan.nextInt();
             Config.setListenPort(listenPort);
@@ -37,7 +39,10 @@ class Waffle {
             System.out.println("Started running.");
             core.run();
         } else {
+            Config.setIsGui(true);
             WaffleGraphic gui = new WaffleGraphic();
+            while (!gui.isReady()) {}
+            core.run();
         }
     }
 }
