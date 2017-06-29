@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import waffle.Config;
+import waffle.wafflecore.WaffleCore;
 
 public class WaffleGraphic implements ActionListener {
     private JFrame frame;
@@ -128,14 +129,15 @@ public class WaffleGraphic implements ActionListener {
 
         Config.setListenPort(Integer.parseInt(listenPortField.getText()));
         Config.setIsMining(miningCheck.isSelected());
-        ready = true;
-    }
 
-    public boolean isReady() {
-        return ready;
+        ready = true;
     }
 
     public void addLog(String log) {
         logArea.append(log);
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 }
