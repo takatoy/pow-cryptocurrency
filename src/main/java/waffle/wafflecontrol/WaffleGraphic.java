@@ -110,7 +110,7 @@ public class WaffleGraphic implements ActionListener {
 		peerHostnameField.setEditable(false);
 		peerPortField.setEditable(false);
 		
-		Config.setConfigData(Integer.parseInt(listenPortField.getText()), peerHostnameField, Integer.parseInt(peerPortField.getText()));
+		Config.setConfigData(Integer.parseInt(listenPortField.getText()), peerHostnameField, Integer.parseInt(peerPortField.getText()), miningCheck.isSelected());
 	}
 	
 	public void addLog(String log) {
