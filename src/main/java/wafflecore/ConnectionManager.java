@@ -1,11 +1,13 @@
 package wafflecore;
 
+import static wafflecore.constants.Constants.*;
 import wafflecore.tool.Logger;
 import wafflecore.WaffleCore;
 import wafflecore.message.*;
 import wafflecore.model.*;
 import wafflecore.util.MessageUtil;
 
+import org.apache.commons.lang3.ArrayUtils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
@@ -28,12 +30,12 @@ public class ConnectionManager {
 
     private boolean listening = true;
     private Selector selector;
-    private ServerSocketChannel socketChannel;
+    private ServerSocketChannel serverSocketChannel;
 
     private InetSocketAddress host;
     private HashMap<String, SocketChannel> peers = new HashMap<String, SocketChannel>();
 
-    private ByteBuffer buf = ByteBuffer.allocate(256);
+    private ByteBuffer buf = ByteBuffer.allocate(MAX_BLOCK_SIZE + 1);
 
     private MessageHandler messageHandler;
     private BlockChainExecutor blockChainExecutor;
@@ -47,12 +49,11 @@ public class ConnectionManager {
 
         try {
             this.selector = Selector.open();
-            socketChannel = ServerSocketChannel.open();
-            socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            socketChannel.configureBlocking(false);
-            socketChannel.socket().setReuseAddress(true);
-            socketChannel.socket().bind(host);
-            socketChannel.register(selector, socketChannel.validOps());
+            serverSocketChannel = ServerSocketChannel.open();
+            serverSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+            serverSocketChannel.configureBlocking(false);
+            serverSocketChannel.socket().bind(host);
+            serverSocketChannel.register(selector, serverSocketChannel.validOps());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,7 +89,9 @@ public class ConnectionManager {
                     continue;
                 }
 
-                if (key.isAcceptable()) {
+                if (key.isConnectable()) {
+                    handleConnect(key);
+                } else if (key.isAcceptable()) {
                     handleAccept(key);
                 } else if (key.isReadable()) {
                     handleRead(key);
@@ -97,13 +100,26 @@ public class ConnectionManager {
         }
     }
 
+    private void handleConnect(SelectionKey key) {
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+
+        try {
+            if (!socketChannel.finishConnect()) {
+                return;
+            }
+            socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void handleAccept(SelectionKey key) {
-        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+        ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
         SocketChannel socketChannel;
         try {
-            socketChannel = serverSocketChannel.accept();
+            socketChannel = ssc.accept();
             socketChannel.configureBlocking(false);
-            socketChannel.socket().setReuseAddress(true);
+            socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             socketChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
             logger.log("ACCEPTED: " + socketChannel);
 
@@ -123,6 +139,7 @@ public class ConnectionManager {
         try {
             buf.clear();
             int read = 0;
+
             while ((read = socketChannel.read(buf)) > 0) {
                 buf.flip();
                 byte[] bytes = new byte[buf.limit()];
@@ -130,15 +147,37 @@ public class ConnectionManager {
                 sb.append(new String(bytes));
             }
 
+            if (read == -1) {
+                logger.log("Closing " + socketChannel);
+                socketChannel.close();
+                return;
+            }
+
+            // System.out.println(sb.toString());
             peerStr = socketChannel.getRemoteAddress().toString();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        sb.insert(0, '[');
+        sb.append(']');
+        replaceAll(sb, "}{", "},{");
         byte[] data = sb.toString().getBytes();
-        if (data != null) {
-            Envelope env = MessageUtil.deserialize(data);
+
+        Envelope[] envs = MessageUtil.deserializeArray(data);
+        ArrayUtils.reverse(envs);
+
+        for (Envelope env : envs) {
             messageHandler.handleMessage(env, peerStr);
+        }
+    }
+
+    private static void replaceAll(StringBuilder sb, String from, String to) {
+        int idx = sb.indexOf(from);
+        while (idx != -1) {
+            sb.replace(idx, idx + from.length(), to);
+            idx += to.length();
+            idx = sb.indexOf(from, idx);
         }
     }
 
@@ -154,47 +193,42 @@ public class ConnectionManager {
                 try {
                     ByteBuffer buf = ByteBuffer.wrap(msg);
                     for (SelectionKey key : selector.keys()) {
-                        if (key.isValid() && key.isWritable() && key.channel() instanceof SocketChannel) {
-                            SocketChannel socketChannel = (SocketChannel) key.channel();
-                            socketChannel.write(buf);
-                            buf.rewind();
+                        if (key.isValid() && key.channel() instanceof SocketChannel) {
+                            try {
+                                SocketChannel socketChannel = (SocketChannel) key.channel();
+                                socketChannel.write(buf);
+                                buf.rewind();
+                            } catch (IOException e) {
+                                System.err.println("Connection error occured.");
+                                key.channel().close();
+                            }
                         }
                     }
                 } catch (Exception e) {
-                    // e.printStackTrace();
+                    e.printStackTrace();
                 }
                 return null;
             }
         });
     }
 
-    public void asyncConnect(String hostName, int port) {
-        ExecutorService executor = WaffleCore.getExecutor();
+    public void connectTo(String hostName, int port) {
+        InetSocketAddress addr = new InetSocketAddress(hostName, port);
+        SocketChannel socketChannel = null;
 
-        executor.submit(new Callable<Void>() {
-            @Override
-            public Void call() {
-                InetSocketAddress addr = new InetSocketAddress(hostName, port);
-                SocketChannel socketChannel = null;
+        try {
+            socketChannel = SocketChannel.open();
+            socketChannel.configureBlocking(false);
+            socketChannel.socket().setReuseAddress(true);
+            socketChannel.connect(addr);
+            selector.wakeup();
+            socketChannel.register(selector, SelectionKey.OP_CONNECT);
 
-                try {
-                    socketChannel = SocketChannel.open();
-                    socketChannel.configureBlocking(false);
-                    socketChannel.socket().setReuseAddress(true);
-                    socketChannel.socket().bind(host);
-                    socketChannel.connect(addr);
-                    socketChannel.register(selector, socketChannel.validOps());
-                    logger.log("CONNECTED: " + socketChannel);
-
-                    String peerAddr = socketChannel.getRemoteAddress().toString();
-                    peers.put(peerAddr, socketChannel);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return null;
-            }
-        });
+            String peerAddr = socketChannel.getRemoteAddress().toString();
+            peers.put(peerAddr, socketChannel);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void asyncSend(byte[] msg, String addr) {

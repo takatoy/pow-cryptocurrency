@@ -34,6 +34,19 @@ public class MessageUtil {
         return null;
     }
 
+    public static Envelope[] deserializeArray(byte[] data) {
+        String dataStr = new String(data);
+
+        try {
+            Envelope[] envs = mapper.readValue(data, Envelope[].class);
+            return envs;
+        } catch (Exception e) {
+            logger.log("Invalid data received.");
+        }
+
+        return null;
+    }
+
     public static byte[] serialize(Envelope env) {
         byte[] serialized = null;
 

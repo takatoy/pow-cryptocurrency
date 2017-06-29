@@ -23,9 +23,9 @@ public class Hello extends Message {
     private ArrayList<ByteArrayWrapper> knownBlocks;
 
     public Hello(
-        @JsonProperty("invtype") ArrayList<String> myPeers,
-        @JsonProperty("invtype") ByteArrayWrapper genesisId,
-        @JsonProperty("invtype") ArrayList<ByteArrayWrapper> knownBlocks)
+        @JsonProperty("peers") ArrayList<String> myPeers,
+        @JsonProperty("genesis") ByteArrayWrapper genesisId,
+        @JsonProperty("blocks") ArrayList<ByteArrayWrapper> knownBlocks)
     {
         this.myPeers = myPeers;
         this.genesisId = genesisId;

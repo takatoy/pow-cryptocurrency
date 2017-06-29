@@ -37,21 +37,23 @@ class BlockChainExecutor {
     }
 
     synchronized public void processBlock(byte[] data, ByteArrayWrapper prevId) {
-        Block prevBlock = blocks.get(prevId);
+        Block blk = BlockUtil.deserialize(data);
 
+        Block prevBlock = blocks.get(prevId);
         if (prevBlock == null) {
-            // When previous block was not found, the block is put to floating block.
+            // When previous block was not found, the block is put into floating block.
             ArrayList<ByteArrayWrapper> flBlocks = floatingBlocks.get(prevId);
             if (flBlocks == null) {
                 flBlocks = new ArrayList<ByteArrayWrapper>();
-                floatingBlocks.put(prevId, new ArrayList<ByteArrayWrapper>());
+                floatingBlocks.put(prevId, flBlocks);
             }
-            flBlocks.add(prevId);
+            flBlocks.add(blk.getId());
+
+            logger.log("FLOATING SIZE:" + floatingBlocks.size() + " / PREVID:" + prevId.toString());
             return;
         }
 
         // Mark block as connected.
-        Block blk = BlockUtil.deserialize(data);
 
         blk.setHeight(prevBlock.getHeight() + 1);
         blk.setTotalDifficulty(blk.getDifficulty() + prevBlock.getTotalDifficulty());
@@ -114,6 +116,7 @@ class BlockChainExecutor {
             return;
         }
 
+        System.out.println(blk.getId());
         checkFloatingBlocks(blk.getId());
     }
 
@@ -275,7 +278,7 @@ class BlockChainExecutor {
         executor.submit(new Callable<Void>() {
             @Override
             public Void call() {
-                miner.notifyBlockApplied();
+                miner.restart();
                 return null;
             }
         });
@@ -308,7 +311,15 @@ class BlockChainExecutor {
         }
 
         latest = blocks.get(block.getPreviousHash());
-        // BlockExecuted()
+
+        ExecutorService executor = WaffleCore.getExecutor();
+        executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() {
+                miner.restart();
+                return null;
+            }
+        });
     }
 
     public void checkFloatingBlocks(ByteArrayWrapper waitingBlockId) {
@@ -316,15 +327,16 @@ class BlockChainExecutor {
         if (pendingBlocks == null) {
             return;
         }
-
+        System.out.println("1111111");
         for (ByteArrayWrapper floatingBlockId : pendingBlocks) {
             byte[] blockData;
 
             blockData = inventory.blocks.get(floatingBlockId);
-
+            System.out.println(new String(blockData));
             if (blockData == null) {
                 continue;
             }
+            System.out.println("2222222");
 
             processBlock(blockData, waitingBlockId);
         }

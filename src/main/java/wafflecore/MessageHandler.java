@@ -12,6 +12,7 @@ import wafflecore.util.BlockUtil;
 import wafflecore.util.TransactionUtil;
 import wafflecore.util.Hasher;
 import wafflecore.util.ByteArrayWrapper;
+import wafflecore.tool.Logger;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +21,7 @@ import java.util.concurrent.Callable;
 import java.util.HashMap;
 
 public class MessageHandler {
+    private Logger logger = Logger.getInstance();
     private Inventory inventory;
     private ConnectionManager connectionManager;
     private BlockChainExecutor blockChainExecutor;
@@ -49,7 +51,11 @@ public class MessageHandler {
         executor.submit(new Callable<Void>() {
             @Override
             public Void call() {
+                // WIP genesis
+
                 ArrayList<ByteArrayWrapper> unknownBlockIds = new ArrayList<ByteArrayWrapper>();
+
+                logger.log("Hello Received:" + peerAddr);
 
                 ArrayList<ByteArrayWrapper> blockIds = hello.getKnownBlocks();
                 for (ByteArrayWrapper id : blockIds) {
@@ -59,7 +65,7 @@ public class MessageHandler {
                 }
 
                 InventoryMessage invMsg = new InventoryMessage();
-                invMsg.setInventoryMessageType(InventoryMessageType.REQUEST);
+                invMsg.setInventoryMessageType(REQUEST);
                 invMsg.setIsBlock(true);
                 for (ByteArrayWrapper id : unknownBlockIds) {
                     invMsg.setObjectId(id);
@@ -104,11 +110,13 @@ public class MessageHandler {
                     return null;
                 }
 
+                logger.log("Advertise Received:" + msg.getObjectId().toString());
+
                 boolean haveObject = msg.getIsBlock() ?
                     inventory.blocks.containsKey(id) : inventory.memoryPool.containsKey(id);
                 if (haveObject) return null;
 
-                msg.setInventoryMessageType(InventoryMessageType.REQUEST);
+                msg.setInventoryMessageType(REQUEST);
 
                 Envelope env = msg.packToEnvelope();
                 connectionManager.asyncSend(MessageUtil.serialize(env), peerAddr);
@@ -128,6 +136,8 @@ public class MessageHandler {
                     throw new IllegalArgumentException();
                 }
 
+                logger.log("Request Received:" + msg.getObjectId().toString());
+
                 byte[] data;
                 if (msg.getIsBlock()) {
                     data = inventory.blocks.get(msg.getObjectId());
@@ -137,7 +147,7 @@ public class MessageHandler {
                     data = tx.getOriginal();
                 }
 
-                msg.setInventoryMessageType(InventoryMessageType.CONTENT);
+                msg.setInventoryMessageType(CONTENT);
                 msg.setData(data);
 
                 Envelope env = msg.packToEnvelope();
@@ -155,7 +165,6 @@ public class MessageHandler {
         executor.submit(new Callable<Void>() {
             @Override
             public Void call() {
-                try{
                 byte[] data = msg.getData();
                 if (data.length > MAX_BLOCK_SIZE) throw new IllegalArgumentException();
 
@@ -169,18 +178,21 @@ public class MessageHandler {
                     }
 
                     Block block = BlockUtil.deserialize(data);
+
+                    logger.log("Block Received:" + msg.getObjectId().toString());
+
                     ByteArrayWrapper prevId = block.getPreviousHash();
                     if (!inventory.blocks.containsKey(prevId)) {
                         InventoryMessage newMsg = new InventoryMessage();
-                        newMsg.setInventoryMessageType(InventoryMessageType.REQUEST);
+                        newMsg.setInventoryMessageType(REQUEST);
                         newMsg.setIsBlock(true);
                         newMsg.setObjectId(block.getPreviousHash());
 
                         Envelope env = newMsg.packToEnvelope();
                         connectionManager.asyncSend(MessageUtil.serialize(env), peerAddr);
-                    } else {
-                        blockChainExecutor.processBlock(data, prevId);
                     }
+
+                    blockChainExecutor.processBlock(data, prevId);
                 } else {
                     ByteArrayWrapper id = ByteArrayWrapper.copyOf(Hasher.doubleSha256(data));
                     if (!id.equals(msg.getObjectId())) return null;
@@ -190,12 +202,14 @@ public class MessageHandler {
 
                     if (tx.getInEntries().size() == 0) return null;
 
+                    logger.log("Tx Received:" + msg.getObjectId().toString());
+
                     synchronized (inventory.memoryPool) {
                         inventory.memoryPool.put(id, tx);
                     }
                 }
 
-                msg.setInventoryMessageType(InventoryMessageType.ADVERTISE);
+                msg.setInventoryMessageType(ADVERTISE);
                 msg.setData(null);
 
                 Envelope env = msg.packToEnvelope();
@@ -203,10 +217,6 @@ public class MessageHandler {
                 connectionManager.asyncBroadcast(MessageUtil.serialize(env));
 
                 return null;
-            }catch(Exception e) {
-                e.printStackTrace();
-            }
-            return null;
             }
         });
     }

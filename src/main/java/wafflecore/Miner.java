@@ -88,13 +88,14 @@ public class Miner {
         } catch (Exception e) {}
     }
 
-    public void notifyBlockApplied() {
+    public void restart() {
         if (!isMining) {
             return;
         }
 
         stop();
         start();
+        return;
     }
 
     public void mineFromLastBlock() {

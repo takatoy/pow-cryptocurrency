@@ -27,16 +27,17 @@ public class WaffleCore {
         String cHostName = scan.next();
         System.out.print("Connect Port Number (null -> -1): ");
         int cPort = scan.nextInt();
+        System.out.print("Mine?: ");
+        boolean mine = scan.nextBoolean();
         //////////////// DELETING IN FUTURE /////////////////
 
         // Initiate thread executor
         service = Executors.newCachedThreadPool();
 
         Genesis genesis = new Genesis();
-        genesis.prepareGenesis(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
+        genesis.prepareGenesis();
         Block genesisBlock = Genesis.getGenesisBlock();
 
-        System.out.println("wow");
         Inventory inventory = new Inventory();
         BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
         Miner miner = new Miner();
@@ -61,6 +62,9 @@ public class WaffleCore {
         // Prepare ConnectionManager.
         connectionManager.setMessageHandler(messageHandler);
         connectionManager.setBlockChainExecutor(blockChainExecutor);
+        if (!"-1".equals(cHostName) && cPort != -1)
+            connectionManager.connectTo(cHostName, cPort);
+
         connectionManager.start();
 
         // Process genesis block.
@@ -68,13 +72,14 @@ public class WaffleCore {
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
         if (!"-1".equals(cHostName) && cPort != -1)
-            connectionManager.asyncConnect(cHostName, cPort);
+            try {Thread.sleep(60000);}catch(Exception e){e.printStackTrace();};
 
-        boolean mine = true;
+        // boolean mine = true;
         if (mine) {
             miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
             miner.start();
         }
+        scan.next();
     }
 
     public static ExecutorService getExecutor() {
