@@ -4,7 +4,7 @@ apply plugin: 'application'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-mainClassName = 'Waffle'
+mainClassName = 'waffle.Waffle'
 
 def defaultEncoding = 'UTF-8'
 
