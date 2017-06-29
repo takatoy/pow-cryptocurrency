@@ -8,24 +8,27 @@ import java.io.IOException;
 
 public class Logger {
     private static Logger logger = new Logger();
-    private static File file;
-    private static FileWriter writer;
-    public static String logFilePath;
+    // private static File file;
+    // private static FileWriter writer;
+    // public static String logFilePath;
 
     private Logger() {
-        logFilePath = LOG_FILE_PATH;
+        // File dataDir = new File(DATA_DIR);
+        // dataDir.mkdir();
 
-        try {
-            file = new File(logFilePath);
+        // logFilePath = LOG_FILE_PATH;
 
-            if (SystemUtil.isFileWritable(file)) {
-                writer = new FileWriter(file, true);
-            } else {
-                throw new IOException(logFilePath + " cannot be written.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try {
+        //     file = new File(logFilePath);
+
+        //     if (SystemUtil.isFileWritable(file)) {
+        //         writer = new FileWriter(file, true);
+        //     } else {
+        //         throw new IOException(logFilePath + " cannot be written.");
+        //     }
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
     }
 
     public static Logger getInstance() {

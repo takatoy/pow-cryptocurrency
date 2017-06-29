@@ -116,7 +116,6 @@ class BlockChainExecutor {
             return;
         }
 
-        System.out.println(blk.getId());
         checkFloatingBlocks(blk.getId());
     }
 
@@ -327,16 +326,13 @@ class BlockChainExecutor {
         if (pendingBlocks == null) {
             return;
         }
-        System.out.println("1111111");
         for (ByteArrayWrapper floatingBlockId : pendingBlocks) {
             byte[] blockData;
 
             blockData = inventory.blocks.get(floatingBlockId);
-            System.out.println(new String(blockData));
             if (blockData == null) {
                 continue;
             }
-            System.out.println("2222222");
 
             processBlock(blockData, waitingBlockId);
         }

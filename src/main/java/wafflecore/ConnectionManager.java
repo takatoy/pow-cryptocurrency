@@ -153,7 +153,6 @@ public class ConnectionManager {
                 return;
             }
 
-            // System.out.println(sb.toString());
             peerStr = socketChannel.getRemoteAddress().toString();
         } catch (Exception e) {
             e.printStackTrace();

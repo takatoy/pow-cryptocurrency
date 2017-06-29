@@ -16,9 +16,6 @@ public class WaffleCore {
     private static ExecutorService service = null; // Thread Executor
 
     public static void run() {
-        // File dataDir = new File(DATA_DIR);
-        // dataDir.mkdir();
-
         //////////////// DELETING IN FUTURE /////////////////
         Scanner scan = new Scanner(System.in);
         System.out.print("Listen Port Number: ");
@@ -71,8 +68,12 @@ public class WaffleCore {
         inventory.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
-        if (!"-1".equals(cHostName) && cPort != -1)
-            try {Thread.sleep(60000);}catch(Exception e){e.printStackTrace();};
+        // Just in case wait for 5 seconds to start mining.
+        try {
+            Thread.sleep(5000);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
         // boolean mine = true;
         if (mine) {

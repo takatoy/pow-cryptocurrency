@@ -53,7 +53,6 @@ public class Miner {
         while (isMining) {
             seed.setNonce(nonce++);
             seed.setTimestamp(System.currentTimeMillis());
-            // System.out.println(nonce);
 
             byte[] data = BlockUtil.serialize(seed);
             ByteArrayWrapper blockId = BlockUtil.computeBlockId(data);
