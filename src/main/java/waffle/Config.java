@@ -1,10 +1,15 @@
 package waffle;
 
 public class Config {
-    public static int listenPort = -1;
-    public static boolean mine = false;
+    private static int listenPort = -1;
+    private static String peerHostname = "";
+    private static int peerPort = -1;
+    private static boolean isMining = false;
 
-    public static void setListenPort() {
-
+    public static void setConfigData(int listenPort, String peerHostname, int peerPort, boolean isMining) {
+    	Config.listenPort = listenPort;
+    	Config.peerHostname = peerHostname;
+    	Config.peerPort = peerPort;
+    	Config.isMining = isMining;
     }
 }
