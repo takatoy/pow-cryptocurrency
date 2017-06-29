@@ -18,31 +18,21 @@ import java.util.concurrent.Future;
 public class WaffleCore {
     private static ExecutorService service = null; // Thread Executor
     private static Logger logger = Logger.getInstance();
-    private static Config
 
     public static void run() {
-        //////////////// DELETING IN FUTURE /////////////////
-        Scanner scan = new Scanner(System.in);
-        System.out.print("Listen Port Number: ");
-        int port = scan.nextInt();
-        System.out.print("Connect Host Name (null -> -1): ");
-        String cHostName = scan.next();
-        System.out.print("Connect Port Number (null -> -1): ");
-        int cPort = scan.nextInt();
-        System.out.print("Mine?: ");
-        boolean mine = scan.nextBoolean();
-        //////////////// DELETING IN FUTURE /////////////////
-
         int listenPort = -1;
-        int initPeerPort = -1;
-        String initPeerHostName = "";
-        boolean mine = false;
+        int peerPort = -1;
+        String peerHostName = "";
+        boolean isMining = false;
 
         if (Config.isSet()) {
             listenPort = Config.getListenPort();
-            initPeerPort = Config.getInitPeerPort();
-            initPeerHostName = Config.getInitPeerHostName();
-            mine = Config.isMine();
+            peerPort = Config.getPeerPort();
+            peerHostName = Config.getPeerHostName();
+            isMining = Config.getIsMining();
+        } else {
+            System.out.println("Invalid config.");
+            System.exit(1);
         }
 
         // Initiate thread executor
@@ -64,7 +54,7 @@ public class WaffleCore {
         BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
         Miner miner = new Miner();
         MessageHandler messageHandler = new MessageHandler();
-        ConnectionManager connectionManager = new ConnectionManager(hostAddr, port);
+        ConnectionManager connectionManager = new ConnectionManager(hostAddr, listenPort);
 
         // Prepare BlockChainExecutor.
         blockChainExecutor.setMiner(miner);
@@ -84,8 +74,8 @@ public class WaffleCore {
         // Prepare ConnectionManager.
         connectionManager.setMessageHandler(messageHandler);
         connectionManager.setBlockChainExecutor(blockChainExecutor);
-        if (!"-1".equals(cHostName) && cPort != -1)
-            connectionManager.connectTo(cHostName, cPort);
+        if (!"-1".equals(peerHostName) && peerPort != -1)
+            connectionManager.connectTo(peerHostName, peerPort);
 
         connectionManager.start();
 
@@ -93,19 +83,22 @@ public class WaffleCore {
         inventory.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
-        // Just in case wait for 5 seconds to start mining.
-        logger.log("Preparing, wait for 20 seconds...");
-        try {
-            Thread.sleep(20000);
-        } catch(Exception e) {
-            e.printStackTrace();
+        if (!"-1".equals(peerHostName) && peerPort != -1) {
+            // Just in case wait for 5 seconds to start mining.
+            logger.log("Preparing, wait for 20 seconds...");
+            try {
+                Thread.sleep(20000);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        // boolean mine = true;
-        if (mine) {
+        if (isMining) {
             miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
             miner.start();
         }
+
+        Scanner scan = new Scanner(System.in);
         scan.next();
     }
 
