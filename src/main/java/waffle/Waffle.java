@@ -39,7 +39,5 @@ class Waffle {
         } else {
             WaffleGraphic gui = new WaffleGraphic();
         }
-
-        System.exit(0);
     }
 }
