@@ -1,6 +1,7 @@
 package waffle.wafflecore;
 
 import static waffle.wafflecore.constants.Constants.*;
+import waffle.Config;
 import waffle.wafflecore.model.*;
 import waffle.wafflecore.util.BlockChainUtil;
 import waffle.wafflecore.util.ByteArrayWrapper;
@@ -17,6 +18,7 @@ import java.util.concurrent.Future;
 public class WaffleCore {
     private static ExecutorService service = null; // Thread Executor
     private static Logger logger = Logger.getInstance();
+    private static Config
 
     public static void run() {
         //////////////// DELETING IN FUTURE /////////////////
@@ -30,6 +32,18 @@ public class WaffleCore {
         System.out.print("Mine?: ");
         boolean mine = scan.nextBoolean();
         //////////////// DELETING IN FUTURE /////////////////
+
+        int listenPort = -1;
+        int initPeerPort = -1;
+        String initPeerHostName = "";
+        boolean mine = false;
+
+        if (Config.isSet()) {
+            listenPort = Config.getListenPort();
+            initPeerPort = Config.getInitPeerPort();
+            initPeerHostName = Config.getInitPeerHostName();
+            mine = Config.isMine();
+        }
 
         // Initiate thread executor
         service = Executors.newCachedThreadPool();

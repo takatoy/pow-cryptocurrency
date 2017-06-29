@@ -1,6 +1,6 @@
 package waffle;
 
-// import wafflecontrol.WaffleControlPanel;
+import wafflecontrol.WaffleGraphic;
 import waffle.wafflecore.WaffleCore;
 
 import waffle.wafflecore.message.*;
@@ -13,29 +13,14 @@ import java.util.Scanner;
 
 class Waffle {
     public static void main(String[] args) {
-        // WaffleControlPanel ctrl = new WaffleControlPanel();
         WaffleCore core = new WaffleCore();
-        boolean isCoreRunning = false;
         Scanner scan = new Scanner(System.in);
 
-        while (true) {
-            System.out.print("Enter command (run, keygen, exit): ");
-            String cmd = scan.next();
+        if (args.length == 1 && "cli".equals(args[0])) {
+            core.run();
+            System.out.println("Started running.");
+        } else {
 
-            if (cmd.equals("run")) {
-                if (isCoreRunning) {
-                    System.out.println("Error: Core is already running.");
-                } else {
-                    isCoreRunning = true;
-                    core.run();
-                    System.out.println("Started running.");
-                }
-            } else if (cmd.equals("keygen")) {
-                System.out.println("Error: Keygen is not supported yet.");
-            } else if (cmd.equals("exit")) {
-                // FORCE
-                break;
-            }
         }
 
         System.exit(0);
