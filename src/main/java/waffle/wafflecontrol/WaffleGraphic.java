@@ -103,17 +103,28 @@ public class WaffleGraphic implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (listenPortField.getText().equals("") || peerHostNameField.getText().equals("") || peerPortField.getText().equals("")) {
+        if (listenPortField.getText().equals("")) {
             return;
         }
 
         listenPortField.setEditable(false);
         peerHostNameField.setEditable(false);
         peerPortField.setEditable(false);
+        miningCheck.setEnabled(false);
+
+        if (peerHostNameField.getText().equals("")) {
+            Config.setPeerHostName("-1");
+        } else {
+            Config.setPeerHostName(peerHostNameField.getText());
+        }
+
+        if (peerPortField.getText().equals("")) {
+            Config.setPeerPort(-1);
+        } else {
+            Config.setPeerPort(Integer.parseInt(peerPortField.getText()));
+        }
 
         Config.setListenPort(Integer.parseInt(listenPortField.getText()));
-        Config.setPeerHostName(peerHostNameField.getText());
-        Config.setPeerPort(Integer.parseInt(peerPortField.getText()));
         Config.setIsMining(miningCheck.isSelected());
     }
 
