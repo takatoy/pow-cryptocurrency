@@ -4,6 +4,7 @@ import static wafflecore.constants.Constants.*;
 import wafflecore.model.*;
 import wafflecore.util.BlockChainUtil;
 import wafflecore.util.ByteArrayWrapper;
+import wafflecore.tool.Logger;
 // import wafflecore.tool.Config;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.util.concurrent.Future;
 
 public class WaffleCore {
     private static ExecutorService service = null; // Thread Executor
+    private static Logger logger = Logger.getInstance();
 
     public static void run() {
         //////////////// DELETING IN FUTURE /////////////////
@@ -69,6 +71,7 @@ public class WaffleCore {
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
         // Just in case wait for 5 seconds to start mining.
+        logger.log("Preparing, wait for 5 seconds...");
         try {
             Thread.sleep(5000);
         } catch(Exception e) {
