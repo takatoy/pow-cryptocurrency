@@ -52,7 +52,7 @@ public class WaffleGraphic implements ActionListener {
         waffle.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
         waffle.setPreferredSize(null);
 
-        listenPortField = new JTextField("9334");
+        listenPortField = new JTextField("1189");
         listenPortField.setPreferredSize(null);
         listenPortField.setHorizontalAlignment(JTextField.CENTER);
 
@@ -60,7 +60,7 @@ public class WaffleGraphic implements ActionListener {
         peerHostNameField.setPreferredSize(null);
         peerHostNameField.setHorizontalAlignment(JTextField.CENTER);
 
-        peerPortField = new JTextField("9334");
+        peerPortField = new JTextField("1189");
         peerPortField.setPreferredSize(null);
         peerPortField.setHorizontalAlignment(JTextField.CENTER);
 
