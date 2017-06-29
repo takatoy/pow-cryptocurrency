@@ -10,6 +10,7 @@ import wafflecore.util.MessageUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.InetAddress;
 import java.net.StandardSocketOptions;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,8 +41,8 @@ public class ConnectionManager {
     private MessageHandler messageHandler;
     private BlockChainExecutor blockChainExecutor;
 
-    public ConnectionManager(String hostName, int port) {
-        this(new InetSocketAddress(hostName, port));
+    public ConnectionManager(InetAddress hostAddr, int port) {
+        this(new InetSocketAddress(hostAddr, port));
     }
 
     public ConnectionManager(InetSocketAddress host) {

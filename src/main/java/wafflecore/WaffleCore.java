@@ -9,6 +9,7 @@ import wafflecore.tool.Logger;
 
 import java.io.File;
 import java.util.Scanner;
+import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -33,6 +34,14 @@ public class WaffleCore {
         // Initiate thread executor
         service = Executors.newCachedThreadPool();
 
+        InetAddress hostAddr = null;
+        try {
+            hostAddr = InetAddress.getLocalHost();
+        } catch (Exception e) {
+            System.out.println("Error: Local host cannot be opened.");
+            System.exit(1);
+        }
+
         Genesis genesis = new Genesis();
         genesis.prepareGenesis();
         Block genesisBlock = Genesis.getGenesisBlock();
@@ -41,7 +50,7 @@ public class WaffleCore {
         BlockChainExecutor blockChainExecutor = new BlockChainExecutor();
         Miner miner = new Miner();
         MessageHandler messageHandler = new MessageHandler();
-        ConnectionManager connectionManager = new ConnectionManager("127.0.0.1", port);
+        ConnectionManager connectionManager = new ConnectionManager(hostAddr, port);
 
         // Prepare BlockChainExecutor.
         blockChainExecutor.setMiner(miner);
