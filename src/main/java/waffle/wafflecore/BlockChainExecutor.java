@@ -249,6 +249,7 @@ class BlockChainExecutor {
     public void apply(Block block) {
         String idStr = block.getId().toString().substring(0, 7);
         logger.log("Applying block " + block.getHeight() + ":" + idStr);
+        logger.log(block.toJson());
 
         ArrayList<Transaction> txs = block.getParsedTransactions();
         ArrayList<ByteArrayWrapper> txIds = new ArrayList<ByteArrayWrapper>();
