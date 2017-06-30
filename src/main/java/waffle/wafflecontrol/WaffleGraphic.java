@@ -70,7 +70,7 @@ public class WaffleGraphic implements ActionListener {
         miningCheck = new JCheckBox();
         miningCheck.setPreferredSize(null);
 
-        executeButton = new JButton("Run");
+        executeButton = new JButton("Excecute");
         executeButton.setPreferredSize(null);
         executeButton.addActionListener(this);
 
@@ -91,11 +91,10 @@ public class WaffleGraphic implements ActionListener {
         logPanel.setPreferredSize(null);
 
         logArea = new JTextArea();
-        logArea.setPreferredSize(new Dimension(370, 370));
         logArea.setEnabled(false);
 
         logScroll = new JScrollPane(logArea);
-        logScroll.setPreferredSize(null);
+        logScroll.setPreferredSize(new Dimension(370, 370));
 
         logPanel.add(logScroll);
 
@@ -135,6 +134,9 @@ public class WaffleGraphic implements ActionListener {
 
     public void addLog(String log) {
         logArea.append(log);
+        logScroll.layout();
+        JScrollBar vLogScroll = logScroll.getVerticalScrollBar();
+        vLogScroll.setValue(vLogScroll.getMaximum());
     }
 
     public boolean isReady() {
