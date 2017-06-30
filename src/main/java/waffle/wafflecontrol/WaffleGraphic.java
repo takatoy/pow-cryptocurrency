@@ -134,7 +134,7 @@ public class WaffleGraphic implements ActionListener {
 
     public void addLog(String log) {
         logArea.append(log);
-        logScroll.layout();
+        logScroll.doLayout();
         JScrollBar vLogScroll = logScroll.getVerticalScrollBar();
         vLogScroll.setValue(vLogScroll.getMaximum());
     }
