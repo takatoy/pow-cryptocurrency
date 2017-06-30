@@ -19,7 +19,7 @@ public class Config {
     public static boolean getIsMining() {
         return isMining;
     }
-    public static boolean getIsGui() {
+    public static boolean isGui() {
         return isGui;
     }
 

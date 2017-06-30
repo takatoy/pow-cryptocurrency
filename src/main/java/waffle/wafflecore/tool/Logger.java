@@ -1,6 +1,8 @@
 package waffle.wafflecore.tool;
 
 import static waffle.wafflecore.constants.Constants.*;
+import waffle.Config;
+import waffle.wafflecontrol.WaffleGraphic;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,27 +10,13 @@ import java.io.IOException;
 
 public class Logger {
     private static Logger logger = new Logger();
-    // private static File file;
-    // private static FileWriter writer;
-    // public static String logFilePath;
+    private static WaffleGraphic wg;
 
     private Logger() {
-        // File dataDir = new File(DATA_DIR);
-        // dataDir.mkdir();
+    }
 
-        // logFilePath = LOG_FILE_PATH;
-
-        // try {
-        //     file = new File(logFilePath);
-
-        //     if (SystemUtil.isFileWritable(file)) {
-        //         writer = new FileWriter(file, true);
-        //     } else {
-        //         throw new IOException(logFilePath + " cannot be written.");
-        //     }
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }
+    public static void setGui(WaffleGraphic g) {
+        wg = g;
     }
 
     public static Logger getInstance() {
@@ -36,14 +24,12 @@ public class Logger {
     }
 
     public static void log(String msg) {
-        // String logFilePath = Config.getValue("LOG_FILE_PATH");
         String date = SystemUtil.getCurrentLocalDateTimeStr();
-        // try {
-        //     writer.write("[" + date + "] " + msg + "\n");
-        //     writer.flush();
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }
-        System.out.println("[" + date + "] " + msg);
+
+        if (Config.isGui()) {
+            wg.addLog("[" + date + "] " + msg + "\n");
+        } else {
+            System.out.println("[" + date + "] " + msg);
+        }
     }
 }

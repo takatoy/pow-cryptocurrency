@@ -6,6 +6,7 @@ import waffle.wafflecore.WaffleCore;
 import waffle.wafflecore.message.*;
 import waffle.wafflecore.message.type.*;
 import waffle.wafflecore.*;
+import waffle.wafflecore.tool.Logger;
 import waffle.wafflecore.model.*;
 import waffle.wafflecore.util.*;
 
@@ -41,6 +42,7 @@ class Waffle {
         } else {
             Config.setIsGui(true);
             WaffleGraphic gui = new WaffleGraphic();
+            Logger.setGui(gui);
             while (!gui.isReady()) {
                 try {
                     Thread.sleep(100);

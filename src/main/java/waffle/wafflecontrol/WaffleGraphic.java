@@ -92,9 +92,11 @@ public class WaffleGraphic implements ActionListener {
 
         logArea = new JTextArea();
         logArea.setPreferredSize(new Dimension(370, 370));
-        logArea.setEditable(false);
+        logArea.setEnabled(false);
 
-        logScroll = new JScrollPane(logArea);
+        logScroll = new JScrollPane(logArea,
+            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+            JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         logScroll.setPreferredSize(null);
 
         logPanel.add(logScroll);

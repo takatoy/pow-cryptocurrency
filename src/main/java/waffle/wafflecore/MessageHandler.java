@@ -25,6 +25,7 @@ public class MessageHandler {
     private Inventory inventory;
     private ConnectionManager connectionManager;
     private BlockChainExecutor blockChainExecutor;
+    private int pendingCnt = 0;
 
     public void handleMessage(Envelope env, String peerAddr) {
         switch (env.getMessageType()) {
@@ -63,6 +64,8 @@ public class MessageHandler {
                         unknownBlockIds.add(id);
                     }
                 }
+
+                pendingCnt = unknownBlockIds.size();
 
                 InventoryMessage invMsg = new InventoryMessage();
                 invMsg.setInventoryMessageType(REQUEST);
@@ -193,6 +196,12 @@ public class MessageHandler {
                     }
 
                     blockChainExecutor.processBlock(data, prevId);
+
+                    if (pendingCnt > 0) {
+                        pendingCnt--;
+                    } else {
+                        WaffleCore.notifyReady();
+                    }
                 } else {
                     ByteArrayWrapper id = ByteArrayWrapper.copyOf(Hasher.doubleSha256(data));
                     if (!id.equals(msg.getObjectId())) return null;

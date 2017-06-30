@@ -11,6 +11,7 @@ import waffle.wafflecore.tool.Logger;
 import java.io.File;
 import java.util.Scanner;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -84,19 +85,21 @@ public class WaffleCore {
         inventory.blocks.put(genesisBlock.getId(), genesisBlock.getOriginal());
         blockChainExecutor.processBlock(genesisBlock.getOriginal(), genesisBlock.getPreviousHash());
 
-        ready = true;
-
         if (!"-1".equals(peerHostName) && peerPort != -1) {
             // Just in case wait for 5 seconds to start mining.
-            logger.log("Preparing, wait for 20 seconds...");
+            logger.log("Preparing, please wait...");
             try {
-                Thread.sleep(20000);
+                Thread.sleep(5000);
             } catch(Exception e) {
                 e.printStackTrace();
             }
-        }
 
-        while (!ready) {}
+            while (!ready) {
+                try {
+                    Thread.sleep(100);
+                } catch(Exception e) {}
+            }
+        }
 
         if (isMining) {
             miner.setRecipientAddr(BlockChainUtil.toAddress("Takato Yamazaki".getBytes()));
