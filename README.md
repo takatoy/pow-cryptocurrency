@@ -1,4 +1,4 @@
-# waffle
+# Waffle
 Waffle core system
 
 ## Building Waffle
