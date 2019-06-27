@@ -51,7 +51,7 @@ public class WaffleGraphic implements ActionListener {
         miningLabel = new JLabel("Enable Mining", JLabel.CENTER);
         miningLabel.setPreferredSize(null);
 
-        waffle = new JLabel("Waffle\u00ae", JLabel.CENTER);
+        waffle = new JLabel("Waffle", JLabel.CENTER);
         waffle.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
         waffle.setPreferredSize(null);
 
