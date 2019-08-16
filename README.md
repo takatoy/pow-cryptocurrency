@@ -1,7 +1,6 @@
-# waffle
-Waffle core system
+# PoW Cryptocurrency
 
-## Building Waffle
+## Build
 
 Gradle is a java building tool. To build, simply run
 
